@@ -1,0 +1,22 @@
+{
+  "preferences": [
+    {
+      "type": "file",
+      "name": "alert_sound",
+      "title": "Select sound to play for notifications"
+    }
+  ],
+  "title": "Notification Sound",
+  "name": "notification-sound",
+  "version": "0.0.1",
+  "description": "Makes a sound when a notification is shown",
+  "main": "index.js",
+  "author": "Martin Giger (http://humanoids.be)",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "MPL-2.0",
+  "keywords": [
+    "jetpack"
+  ]
+}
