@@ -28,7 +28,7 @@ const shouldPlaySound = (principal = null) => {
     if(!prefs.filter)
         return true;
     else if(principal !== null)
-        return prefs.filter.split(",").some((s) => principal.origin.includes(s));
+        return prefs.filter.split(",").some((s) => principal.origin.includes(s.trim()));
     else if(prefs.filter.includes("native"))
         return true;
     else
