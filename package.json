@@ -4,6 +4,52 @@
       "type": "file",
       "name": "alert_sound",
       "title": "Select sound to play for notifications"
+    },
+    {
+      "type": "string",
+      "name": "filter",
+      "title": "Filter notifications to play sound for",
+      "description": "Comma separated list of websites to play the sound for. Add \"native\" to the list to show notifications from other places like extensions."
+    },
+    {
+      "type": "menulist",
+      "name": "native_sound",
+      "title": "System sound to play (if no file is specified)",
+      "value": 0,
+      "options": [
+        {
+          "value": 0,
+          "label": "New mail"
+        },
+        {
+          "value": 1,
+          "label": "Dialog opened"
+        },
+        {
+          "value": 2,
+          "label": "Confirm dialog opened"
+        },
+        {
+          "value": 3,
+          "label": "Prompt dialog opened"
+        },
+        {
+          "value": 4,
+          "label": "Select dialog opened"
+        },
+        {
+          "value": 5,
+          "label": "Menu item executed"
+        },
+        {
+          "value": 6,
+          "label": "Menu popup shown"
+        },
+        {
+          "value": 7,
+          "label": "Text field full"
+        }
+      ]
     }
   ],
   "title": "Notification Sound",

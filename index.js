@@ -24,6 +24,17 @@ const nsSound = CC("@mozilla.org/sound;1", "nsISound");
 
 const oldService = xpcom.factoryByContract(ALERT_SERVICE_CONTRACT).getService(Ci.nsIAlertsService);
 
+const shouldPlaySound = (principal = null) => {
+    if(!prefs.filter)
+        return true;
+    else if(principal !== null)
+        return prefs.filter.split(",").some((s) => principal.origin.includes(s));
+    else if(prefs.filter.includes("native"))
+        return true;
+    else
+        return false;
+};
+
 const Wrapper = Class({
     extends: xpcom.Unknown,
     interfaces: [ "nsIAlertsService", "nsIAlertsProgressListener", "nsIAlertsDoNotDisturb" ],
@@ -41,14 +52,18 @@ const Wrapper = Class({
     },
     showAlertNotification(...args) {
         oldService.showAlertNotification(...args);
-        //TODO some kind of filter
-        if(prefs.alert_sound) {
-            const sound = new window.Audio("file://"+prefs.alert_sound);
-            sound.play();
-        }
-        else {
-            const soundService = new nsSound();
-            soundService.playEventSound(soundService.EVENT_NEW_MAIL_RECEIVED);
+
+        let argArr = [...args];
+        let principal = argArr.length >= 10 ? argArr[10] : null;
+        if(shouldPlaySound(principal)) {
+            if(prefs.alert_sound) {
+                const sound = new window.Audio("file://"+prefs.alert_sound);
+                sound.play();
+            }
+            else {
+                const soundService = new nsSound();
+                soundService.playEventSound(prefs.native_sound);
+            }
         }
     },
     closeAlert(...args) {
