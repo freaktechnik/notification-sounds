@@ -6,6 +6,36 @@
  */
 "use strict";
 
+/**
+ * XPCOM base interface.
+ * @external nsISupports
+ * @see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsISupports
+ */
+/**
+ * The important notification service interface that has methods for showing a
+ * notification.
+ * @external nsIAlertsService
+ * @extends external:nsISupports
+ * @see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIAlertsService
+ */
+/**
+ * Provides the interface to a principal, which represents a security context.
+ * @external nsIPrincipal
+ * @extends external:nsISerializable
+ * @see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIPrincipal
+ */
+/**
+ * SDK helpers to interact with XPCOM
+ * @external sdk/platform/xpcom
+ * @requires sdk/platform/xpcom
+ * @see https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/platform_xpcom
+ */
+/**
+ * @class Unknown
+ * @memberof external:sdk/platform/xpcom
+ * @implements external:nsISupports
+ * @see https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/platform_xpcom#Unknown
+ */
 const xpcom = require("sdk/platform/xpcom");
 const { Class } = require("sdk/core/heritage");
 const { CC, Ci, Cm } = require("chrome");
@@ -22,18 +52,38 @@ const nsSound = CC("@mozilla.org/sound;1", "nsISound");
 
 const oldService = xpcom.factoryByContract(ALERT_SERVICE_CONTRACT).getService(Ci.nsIAlertsService);
 
+/**
+ * @const {string}
+ * @default "native"
+ */
 const NATIVE_SOURCE = "native";
 
+/**
+ * Check if something is not ignored.
+ * @argument {string} origin - The string to check for
+ * @return {boolean}
+ */
 const isNotIgnored = (origin) => {
     return !prefs.ignore ||
         prefs.ignore.split(",").every((s) => !origin.includes(s.trim()));
 };
 
+/**
+ * Check if something is allowed.
+ * @argument {string} origin - The string to check for
+ * @return {boolean}
+ */
 const isFiltered = (origin) => {
     return !prefs.filter ||
         prefs.filter.split(",").some((s) => origin.includes(s.trim()));
 };
 
+/**
+ * Determine if a sound should be played for a notification.
+ * @argument {external:nsIPrincipal?} [principal = null] - Principal of the
+ *                                                         notification if any.
+ * @return {boolean} Indicates if a sound should be played.
+ */
 const shouldPlaySound = (principal = null) => {
     if(!prefs.filter && !prefs.ignore)
         return true;
@@ -43,7 +93,19 @@ const shouldPlaySound = (principal = null) => {
         return isNotIgnored(NATIVE_SOURCE) && isFiltered(NATIVE_SOURCE);
 };
 
-const Wrapper = Class({
+/**
+ * A wrapper around the original alert service that plays a sound whenever a
+ * notification is shown and it should have a sound according to user-defined
+ * rules.
+ * @class
+ * @implements external:nsIAlertService
+ * @implements external:nsIAlertsProgressListener
+ * @implements external:nsIAlertsDoNotDisturb
+ * @extends external:sdk/platform/xpcom.Unknown
+ */
+const Wrapper = Class(
+/** @lends module:index~Wrapper.prototype */
+{
     extends: xpcom.Unknown,
     interfaces: [ "nsIAlertsService", "nsIAlertsProgressListener", "nsIAlertsDoNotDisturb" ],
     onProgress(...args) {
