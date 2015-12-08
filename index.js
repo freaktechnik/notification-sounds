@@ -98,7 +98,7 @@ const shouldPlaySound = (principal = null) => {
  * notification is shown and it should have a sound according to user-defined
  * rules.
  * @class
- * @implements external:nsIAlertService
+ * @implements external:nsIAlertsService
  * @implements external:nsIAlertsProgressListener
  * @implements external:nsIAlertsDoNotDisturb
  * @extends external:sdk/platform/xpcom.Unknown
