@@ -12,6 +12,12 @@
       "description": "Comma separated list of websites to play the sound for. Add \"native\" to the list to show notifications from other places like extensions."
     },
     {
+      "type": "string",
+      "name": "ignore",
+      "title": "Ignore notification sources",
+      "description": "Comma separated list of websites to always ignore for notification sounds. This takes precedence over the filter list for sources to play sounds for."
+    },
+    {
       "type": "menulist",
       "name": "native_sound",
       "title": "System sound to play (if no file is specified)",
@@ -54,7 +60,7 @@
   ],
   "title": "Notification Sound",
   "name": "notification-sound",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Makes a sound when a notification is shown",
   "main": "index.js",
   "author": "Martin Giger (http://humanoids.be)",

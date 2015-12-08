@@ -6,8 +6,6 @@
  */
 "use strict";
 
-//TODO play default system sound
-
 const xpcom = require("sdk/platform/xpcom");
 const { Class } = require("sdk/core/heritage");
 const { CC, Ci, Cm } = require("chrome");
@@ -24,15 +22,25 @@ const nsSound = CC("@mozilla.org/sound;1", "nsISound");
 
 const oldService = xpcom.factoryByContract(ALERT_SERVICE_CONTRACT).getService(Ci.nsIAlertsService);
 
+const NATIVE_SOURCE = "native";
+
+const isNotIgnored = (origin) => {
+    return !prefs.ignore ||
+        prefs.ignore.split(",").every((s) => !origin.includes(s.trim()));
+};
+
+const isFiltered = (origin) => {
+    return !prefs.filter ||
+        prefs.filter.split(",").some((s) => origin.includes(s.trim()));
+};
+
 const shouldPlaySound = (principal = null) => {
-    if(!prefs.filter)
+    if(!prefs.filter && !prefs.ignore)
         return true;
     else if(principal !== null)
-        return prefs.filter.split(",").some((s) => principal.origin.includes(s.trim()));
-    else if(prefs.filter.includes("native"))
-        return true;
+        return isNotIgnored(principal.origin) && isFiltered(principal.origin);
     else
-        return false;
+        return isNotIgnored(NATIVE_SOURCE) && isFiltered(NATIVE_SOURCE);
 };
 
 const Wrapper = Class({
