@@ -41,6 +41,7 @@ const { Class } = require("sdk/core/heritage");
 const { CC, Ci, Cm } = require("chrome");
 const { prefs } = require("sdk/simple-prefs");
 const { window } = require("sdk/addon/window");
+const events = require("sdk/system/event");
 
 const registrar = Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
@@ -51,6 +52,8 @@ const factoryCID = registrar.contractIDToCID(ALERT_SERVICE_CONTRACT);
 const nsSound = CC("@mozilla.org/sound;1", "nsISound");
 
 const oldService = xpcom.factoryByContract(ALERT_SERVICE_CONTRACT).getService(Ci.nsIAlertsService);
+
+const NOTIFICATION_EVENT = "notification-showing";
 
 /**
  * @const {string}
@@ -123,8 +126,7 @@ const Wrapper = Class(
     showAlertNotification(...args) {
         oldService.showAlertNotification(...args);
 
-        let argArr = [...args];
-        let principal = argArr.length >= 10 ? argArr[10] : null;
+        let principal = args.length >= 10 ? args[10] : null;
         if(shouldPlaySound(principal)) {
             if(prefs.alert_sound) {
                 const sound = new window.Audio("file://"+prefs.alert_sound);
@@ -135,6 +137,11 @@ const Wrapper = Class(
                 soundService.playEventSound(prefs.native_sound);
             }
         }
+
+        events.emit(NOTIFICATION_EVENT, {
+            data: args,
+            subject: this
+        });
     },
     closeAlert(...args) {
         oldService.closeAlert(...args);
