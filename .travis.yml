@@ -5,7 +5,7 @@ node_js: stable
 env:
   global:
   - DISPLAY=:99.0
-  - JPM_FIREFOX_BINARY=$TRAVIS_BUILD_DIR/../firefox
+  - JPM_FIREFOX_BINARY=$TRAVIS_BUILD_DIR/../firefox/firefox
 before_install:
 - sh -e /etc/init.d/xvfb start
 before_script:
