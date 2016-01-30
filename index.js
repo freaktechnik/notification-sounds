@@ -41,7 +41,7 @@ const { Class } = require("sdk/core/heritage");
 const { CC, Ci, Cm } = require("chrome");
 const { prefs } = require("sdk/simple-prefs");
 const { window } = require("sdk/addon/window");
-const events = require("sdk/system/event");
+const events = require("sdk/system/events");
 
 const registrar = Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
@@ -111,22 +111,7 @@ const Wrapper = Class(
 {
     extends: xpcom.Unknown,
     interfaces: [ "nsIAlertsService", "nsIAlertsProgressListener", "nsIAlertsDoNotDisturb" ],
-    onProgress(...args) {
-        oldService.QueryInterface(Ci.nsIAlertsProgressListener).onProgress(...args);
-    },
-    onCancel(...args) {
-        oldService.QueryInterface(Ci.nsIAlertsProgressListener).onCancel(...args);
-    },
-    get manualDoNotDisturb() {
-        return oldService.QueryInterface(Ci.nsIAlertsDoNotDisturb).manualDoNotDisturb;
-    },
-    set manualDoNotDisturb(val) {
-        oldService.QueryInterface(Ci.nsIAlertsDoNotDisturb).manualDoNotDisturb = val;
-    },
-    showAlertNotification(...args) {
-        oldService.showAlertNotification(...args);
-
-        let principal = args.length >= 10 ? args[10] : null;
+    _playSound(principal, args) {
         if(shouldPlaySound(principal)) {
             if(prefs.alert_sound) {
                 const sound = new window.Audio("file://"+prefs.alert_sound);
@@ -139,9 +124,31 @@ const Wrapper = Class(
         }
 
         events.emit(NOTIFICATION_EVENT, {
-            data: args,
             subject: this
         });
+    },
+    onProgress(...args) {
+        oldService.QueryInterface(Ci.nsIAlertsProgressListener).onProgress(...args);
+    },
+    onCancel(...args) {
+        oldService.QueryInterface(Ci.nsIAlertsProgressListener).onCancel(...args);
+    },
+    get manualDoNotDisturb() {
+        return oldService.QueryInterface(Ci.nsIAlertsDoNotDisturb).manualDoNotDisturb;
+    },
+    set manualDoNotDisturb(val) {
+        oldService.QueryInterface(Ci.nsIAlertsDoNotDisturb).manualDoNotDisturb = val;
+    },
+    showAlert(...args) {
+        oldService.showAlert(...args);
+
+        this._playSound(args[0].principal);
+    },
+    showAlertNotification(...args) {
+        oldService.showAlertNotification(...args);
+
+        let principal = args.length >= 10 ? args[10] : null;
+        this._playSound(principal);
     },
     closeAlert(...args) {
         oldService.closeAlert(...args);

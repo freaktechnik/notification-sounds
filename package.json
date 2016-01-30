@@ -60,15 +60,18 @@
   ],
   "title": "Notification Sound",
   "name": "notification-sound",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Makes a sound when a notification is shown",
   "main": "index.js",
   "author": "Martin Giger (http://humanoids.be)",
   "engines": {
-    "firefox": ">=38.0a1"
+    "firefox": ">=46.0a1"
   },
   "license": "MPL-2.0",
   "keywords": [
     "jetpack"
-  ]
+  ],
+  "scripts": {
+    "test": "jpm test"
+  }
 }
