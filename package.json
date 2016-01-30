@@ -63,7 +63,7 @@
   "version": "0.0.3",
   "description": "Makes a sound when a notification is shown",
   "main": "index.js",
-  "author": "Martin Giger (http://humanoids.be)",
+  "author": "Martin Giger (https://humanoids.be)",
   "engines": {
     "firefox": ">=46.0a1"
   },
@@ -71,6 +71,7 @@
   "keywords": [
     "jetpack"
   ],
+  "private": true,
   "scripts": {
     "test": "jpm test"
   }
