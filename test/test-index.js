@@ -1,6 +1,7 @@
 /**
  * @author Martin Giger
  * @license MPL-2.0
+ * @todo Test ignore/allow list
  */
 require("../index");
 
@@ -58,43 +59,43 @@ exports['test showAlert observer notification'] = function*(assert) {
 
 exports['test showAlertNotification notification observer'] = function*(assert) {
     let p = defer();
-    
+
     const observer = getObserver((topic, data) => {
         p.resolve(topic);
     });
-    
+
     AlertsService.showAlertNotification(self.data.url("icon-64.png"), "Test", "Notification for a unit test", false, null, observer);
-    
+
     let topic = yield p.promise;
     p = defer();
-    
+
     assert.equal(topic, "alertshow", "Alert was shown");
-    
+
     topic = yield p.promise;
-    
+
     assert.equal(topic, "alertfinished", "Alert was hidden");
-    
+
     yield cleanUI();
 };
 
 exports['test showAlertNotification notification observer'] = function*(assert) {
     let p = defer();
-    
+
     const observer = getObserver((topic, data) => {
         p.resolve(topic);
     });
-    
+
     AlertsService.showAlert(getNotification(), observer);
-    
+
     let topic = yield p.promise;
     p = defer();
-    
+
     assert.equal(topic, "alertshow", "Alert was shown");
-    
+
     topic = yield p.promise;
-    
+
     assert.equal(topic, "alertfinished", "Alert was hidden");
-    
+
     yield cleanUI();
 };
 

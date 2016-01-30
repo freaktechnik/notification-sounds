@@ -60,7 +60,7 @@
   ],
   "title": "Notification Sound",
   "name": "notification-sound",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Makes a sound when a notification is shown",
   "main": "index.js",
   "author": "Martin Giger (https://humanoids.be)",
@@ -74,5 +74,13 @@
   "private": true,
   "scripts": {
     "test": "jpm test"
-  }
+  },
+  "homepage": "https://addons.mozilla.org/en-US/firefox/addon/notification-sound/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/freaktechnik/notification-sounds.git"
+  },
+  "bugs": {
+    "url": "https://github.com/freaktechnik/notification-sounds/issues"
+  },
 }
