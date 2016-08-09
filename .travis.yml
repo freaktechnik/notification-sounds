@@ -1,15 +1,12 @@
 language: node_js
 node_js: stable
-# addons:
-#  firefox: latest
 env:
   global:
   - DISPLAY=:99.0
   - JPM_FIREFOX_BINARY=$TRAVIS_BUILD_DIR/../firefox/firefox
 before_install:
 - sh -e /etc/init.d/xvfb start
-before_script:
-- npm install -g jpm get-firefox
+- npm i -g get-firefox
 - cd ..
-- get-firefox -ev
+- get-firefox -ecb unbranded-release
 - cd $TRAVIS_BUILD_DIR

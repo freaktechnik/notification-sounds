@@ -82,5 +82,8 @@
   },
   "bugs": {
     "url": "https://github.com/freaktechnik/notification-sounds/issues"
+  },
+  "devDependencies": {
+    "jpm": "*"
   }
 }
