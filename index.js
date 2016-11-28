@@ -1,5 +1,6 @@
 /**
  * Replaces the current alert service and plays a sound if desired.
+ *
  * @author Martin Giger
  * @license MPL-2.0
  * @module index
@@ -14,18 +15,21 @@
 /**
  * The important notification service interface that has methods for showing a
  * notification.
+ *
  * @external nsIAlertsService
  * @extends external:nsISupports
  * @see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIAlertsService
  */
 /**
  * Provides the interface to a principal, which represents a security context.
+ *
  * @external nsIPrincipal
  * @extends external:nsISerializable
  * @see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIPrincipal
  */
 /**
  * SDK helpers to interact with XPCOM
+ *
  * @external sdk/platform/xpcom
  * @requires sdk/platform/xpcom
  * @see https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/platform_xpcom
@@ -63,8 +67,9 @@ const NATIVE_SOURCE = "native";
 
 /**
  * Check if something is not ignored.
- * @argument {string} origin - The string to check for
- * @return {boolean}
+ *
+ * @param {string} origin - The string to check for.
+ * @returns {boolean} If the string is not ignored.
  */
 const isNotIgnored = (origin) => {
     return !prefs.ignore ||
@@ -73,8 +78,9 @@ const isNotIgnored = (origin) => {
 
 /**
  * Check if something is allowed.
- * @argument {string} origin - The string to check for
- * @return {boolean}
+ *
+ * @param {string} origin - The string to check for.
+ * @returns {boolean} If the string is in the filter.
  */
 const isFiltered = (origin) => {
     return !prefs.filter ||
@@ -83,38 +89,41 @@ const isFiltered = (origin) => {
 
 /**
  * Determine if a sound should be played for a notification.
- * @argument {external:nsIPrincipal?} [principal = null] - Principal of the
- *                                                         notification if any.
- * @return {boolean} Indicates if a sound should be played.
+ *
+ * @param {external:nsIPrincipal?} [principal=null] - Principal of the
+ *                                                    notification if any.
+ * @returns {boolean} Indicates if a sound should be played.
  */
 const shouldPlaySound = (principal = null) => {
-    if(!prefs.filter && !prefs.ignore)
+    if(!prefs.filter && !prefs.ignore) {
         return true;
-    else if(principal !== null)
+    }
+    else if(principal !== null) {
         return isNotIgnored(principal.origin) && isFiltered(principal.origin);
-    else
+    }
+    else {
         return isNotIgnored(NATIVE_SOURCE) && isFiltered(NATIVE_SOURCE);
+    }
 };
 
 /**
  * A wrapper around the original alert service that plays a sound whenever a
  * notification is shown and it should have a sound according to user-defined
  * rules.
+ *
  * @class
  * @implements external:nsIAlertsService
  * @implements external:nsIAlertsProgressListener
  * @implements external:nsIAlertsDoNotDisturb
  * @extends external:sdk/platform/xpcom.Unknown
  */
-const Wrapper = Class(
-/** @lends module:index~Wrapper.prototype */
-{
+const Wrapper = Class(/** @lends module:index~Wrapper.prototype */{
     extends: xpcom.Unknown,
     interfaces: [ "nsIAlertsService", "nsIAlertsProgressListener", "nsIAlertsDoNotDisturb" ],
-    _playSound(principal, args) {
+    _playSound(principal) {
         if(shouldPlaySound(principal)) {
             if(prefs.alert_sound) {
-                const sound = new window.Audio("file://"+prefs.alert_sound);
+                const sound = new window.Audio("file://" + prefs.alert_sound);
                 sound.play();
             }
             else {
@@ -139,6 +148,11 @@ const Wrapper = Class(
     set manualDoNotDisturb(val) {
         oldService.QueryInterface(Ci.nsIAlertsDoNotDisturb).manualDoNotDisturb = val;
     },
+    showPersistentNotification(aPersistentData, aAlert, aAlertListeners) {
+        oldService.showPersistentNotification(aPersistentData, aAlert, aAlertListeners);
+
+        this._playSound(aAlert.principal);
+    },
     showAlert(...args) {
         oldService.showAlert(...args);
 
@@ -147,7 +161,7 @@ const Wrapper = Class(
     showAlertNotification(...args) {
         oldService.showAlertNotification(...args);
 
-        let principal = args.length >= 10 ? args[10] : null;
+        const principal = args.length >= 10 ? args[10] : null;
         this._playSound(principal);
     },
     closeAlert(...args) {
