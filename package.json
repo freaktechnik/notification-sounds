@@ -65,7 +65,7 @@
   "main": "index.js",
   "author": "Martin Giger (https://humanoids.be)",
   "engines": {
-    "firefox": ">=46.0a1 <=47.0"
+    "firefox": ">=50.0"
   },
   "license": "MPL-2.0",
   "keywords": [
@@ -85,5 +85,8 @@
   },
   "devDependencies": {
     "jpm": "*"
+  },
+  "permissions": {
+    "multiprocess": true
   }
 }
