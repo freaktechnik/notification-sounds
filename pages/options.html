@@ -5,25 +5,25 @@
         <script src="../scripts/options.js"></script>
     </head>
     <body>
-        <section>
+        <section id="website-section">
             <h1>Websites</h1>
-            <label><input type="checkbox" id="allWebsites" checked> Play a sound for all websites</label>
-            <h2 id="blockedWebsites">Blocked Websites</h2>
-            <h2 id="allowedWebsites">Allowed Websites</h2>
-            <div class="filterlist" id="websiteFilter">
-                <input type="text" pattern="[a-zA-Z0-9-].[a-z][a-z]+" id="newWebsite"><button id="addWebsite" class="addbutton">Add</button>
-                <ul id="websites">
+            <label><input type="checkbox" class="all" id="allWebsites" checked> Play a sound for all websites</label>
+            <h2 class="blocked">Blocked Websites</h2>
+            <h2 class="allowed">Allowed Websites</h2>
+            <div class="filterlist">
+                <input type="text" pattern="[a-zA-Z0-9-].[a-z][a-z]+"><button class="addbutton">Add</button>
+                <ul>
                 </ul>
             </div>
         </section>
-        <section>
+        <section id="extension-section">
             <h1>Extensions</h1>
-            <label><input type="checkbox" id="allExtensions" checked> Play a sound for all extensions</label>
-            <h2 id="blockedExtensions">Blocked Extensions</h2>
-            <h2 id="allowedExtensions">Allowed Websites</h2>
-            <div class="filterlist" id="extensionFilter">
-                <input type="text" id="newExtension"><button id="addExtension" class="addbutton">Add</button>
-                <ul id="extensions">
+            <label><input type="checkbox" class="all" id="allExtensions" checked> Play a sound for all extensions</label>
+            <h2 class="blocked">Blocked Extensions</h2>
+            <h2 class="allowed">Allowed Websites</h2>
+            <div class="filterlist">
+                <input type="text"><button class="addbutton">Add</button>
+                <ul>
                 </ul>
             </div>
         </section>

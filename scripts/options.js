@@ -1,5 +1,16 @@
 "use strict";
 
+const stores = {
+    extension: {
+        blocked: "blockedExtensions",
+        allowed: "allowedExtensions"
+    },
+    website: {
+        blocked: "blockedWebsites",
+        allowed: "allowedWebsites"
+    }
+};
+
 class FilterList {
     constructor(datastore, anchor) {
         this.datastore = datastore;
@@ -77,3 +88,43 @@ class FilterList {
         this.anchor.querySelector(".addbutton").removeEventListener("click", this.addListener);
     }
 }
+
+class Filter {
+    constructor(stores, section) {
+        this.stores = stores;
+        this.section = section;
+
+        this.all = this.section.querySelector(".all");
+
+        browser.storage.local.get({
+            [this.all.id]: true
+        }).then((values) => {
+            this.all.checked = values[this.all.id];
+            this.updateList();
+        });
+
+        this.all.addEventListener("input", () => {
+            this.updateList();
+            browser.storage.local.set({
+                [this.all.id]: this.all.checked
+            });
+        });
+    }
+
+    updateList() {
+        if(this.list) {
+            this.list.clear();
+        }
+
+        const anchor = this.section.querySelector(".filterlist");
+        if(this.all.checked) {
+            this.list = new FilterList(this.stores.blocked, anchor);
+        }
+        else {
+            this.list = new FilterList(this.stores.allowed, anchor);
+        }
+    }
+}
+
+new Filter(stores.extension, document.getElementById("extension-section"));
+new Filter(stores.website, document.getElementById("website-section"));
