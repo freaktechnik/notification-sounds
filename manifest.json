@@ -26,5 +26,16 @@
     },
     "permissions": [
         "storage"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*/*"
+            ],
+            "js": [
+                "scripts/content-script.js"
+            ],
+            "run_at": "document_start"
+        }
     ]
 }
