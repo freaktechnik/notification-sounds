@@ -3,7 +3,6 @@
 //TODO default sound
 //TODO provide some default extension IDs
 //TODO tab context menu to quickly whitelist/unwhitelist host
-//TODO content script that does the magic for websites
 //TODO sync?
 
 const SOURCES = {

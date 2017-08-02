@@ -1,3 +1,5 @@
+/* global XPCNativeWrapper, exportFunction */
+/* eslint-disable new-cap */
 class Notification extends XPCNativeWrapper(window.wrappedJSObject.Notification) {
     constructor(title, options) {
         super(title, options);
@@ -7,4 +9,4 @@ class Notification extends XPCNativeWrapper(window.wrappedJSObject.Notification)
     }
 }
 //TODO this probably doesn't work.
-exportFunction(Notification, window, {defineAs:'Notification'});
+exportFunction(Notification, window.wrappedJSObject, { defineAs: 'Notification' });

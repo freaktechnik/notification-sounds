@@ -11,7 +11,10 @@
             <h2 class="blocked">Blocked Websites</h2>
             <h2 class="allowed">Allowed Websites</h2>
             <div class="filterlist">
-                <input type="text" pattern="[a-zA-Z0-9-].[a-z][a-z]+"><button class="addbutton">Add</button>
+                <form>
+                    <input type="text" pattern="[a-zA-Z0-9-]+\.[a-z][a-z]+">
+                    <button class="addbutton" type="submit">Add</button>
+                </form>
                 <ul>
                 </ul>
             </div>
@@ -20,9 +23,12 @@
             <h1>Extensions</h1>
             <label><input type="checkbox" class="all" id="allExtensions" checked> Play a sound for all extensions</label>
             <h2 class="blocked">Blocked Extensions</h2>
-            <h2 class="allowed">Allowed Websites</h2>
+            <h2 class="allowed">Allowed Extensions</h2>
             <div class="filterlist">
-                <input type="text"><button class="addbutton">Add</button>
+                <form>
+                    <input type="text">
+                    <button class="addbutton" type="submit">Add</button>
+                </form>
                 <ul>
                 </ul>
             </div>
