@@ -35,7 +35,7 @@ class FilterList {
         const input = this.anchor.querySelector("input");
 
         this.addListener = () => {
-            this.addItem(value);
+            this.addItem(input.value);
         };
         this.anchor.querySelector(".addbutton").addEventListener("click", this.addListener);
     }
@@ -48,7 +48,9 @@ class FilterList {
         const button = document.createElement("button");
         button.textContent = "Remove";
         button.classList.add("removebutton");
-        button.addEventListener("click", () => { TODO });
+        button.addEventListener("click", () => {
+            this.removeItem(value);
+        });
 
         root.appendChild(button);
 

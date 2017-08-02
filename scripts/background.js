@@ -71,12 +71,12 @@ const SOURCES = {
         return urlObj.hostname;
     };
 
-browser.runtime.onMessage.addListener((message, source) => {
+browser.runtime.onMessage.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC && sender.url.startsWith("http")) {
         return NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url));
     }
 });
-browser.runtime.onMessageExternal.addListener((message, source) => {
+browser.runtime.onMessageExternal.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC) {
         return NotificationListener.onNotification(SOURCES.EXTENSION, sender.id);
     }
