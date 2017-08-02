@@ -1,2 +1,4 @@
 *.xpi
 *~
+node_modules
+web-ext-artifacts

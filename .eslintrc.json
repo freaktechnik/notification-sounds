@@ -1,10 +1,6 @@
 {
-    "rules": {
-        "node/no-unsupported-features": 0,
-        "node/no-missing-require": 0,
-        "node/no-unpublished-require": 0,
-        "new-cap": 0,
-        "one-var": 0
+    "env": {
+        "webextensions": true
     },
-    "extends": "plugin:freaktechnik/node"
+    "extends": "plugin:freaktechnik/browser"
 }

@@ -1,0 +1,8 @@
+{
+    "extensionName": {
+        "message": "Notification Sound"
+    },
+    "extensionDescription": {
+        "message": "Makes a sound when a notification is shown"
+    }
+}
