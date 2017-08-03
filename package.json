@@ -9,7 +9,7 @@
   "scripts": {
     "test": "eslint scripts/ && web-ext lint",
     "start": "web-ext run",
-    "build": "web-ext build"
+    "build": "web-ext build -i README.md package.json package-lock.json"
   },
   "homepage": "https://addons.mozilla.org/en-US/firefox/addon/notification-sound/",
   "repository": {
