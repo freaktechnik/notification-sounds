@@ -1,6 +1,6 @@
+/* global StoredBlob */
 "use strict";
 
-//TODO default sound
 //TODO provide some default extension IDs
 //TODO tab context menu to quickly whitelist/unwhitelist host
 //TODO sync?
@@ -11,12 +11,37 @@ const SOURCES = {
     },
     NOTIFICATION_TOPIC = "new-notification",
     NotificationListener = {
+        DEFAULT_SOUND: browser.runtime.getURL('ping.ogg'),
         init() {
             this.player = new Audio();
             this.player.autoplay = false;
             this.player.preload = true;
+            this.loadSound();
 
-            //TODO load sound
+            browser.storage.onChanged.addListener((changes, areaName) => {
+                if(areaName === "local" && "soundName" in changes) {
+                    this.loadSound();
+                }
+            });
+        },
+        async loadSound() {
+            const { soundName } = await browser.storage.local.get({
+                soundName: ''
+            });
+            if(this.player.src && this.player.src !== this.DEFAULT_SOUND) {
+                const oldURL = this.player.src;
+                this.player.src = "";
+                URL.revokeObjectURL(oldURL);
+            }
+            if(soundName.length) {
+                const storedFile = new StoredBlob(soundName);
+                const file = await storedFile.get();
+                this.player.src = URL.createObjectURL(file);
+            }
+            else {
+                //TODO actually add ping.ogg
+                this.player.src = this.DEFAULT_SOUND;
+            }
         },
         async extensionAllowed(id) {
             const { allExtensions, allowedExtensions, blockedExtensions } = await

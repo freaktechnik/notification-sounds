@@ -17,6 +17,7 @@
     },
     "background": {
         "scripts": [
+            "scripts/stored-sound.js",
             "scripts/background.js"
         ]
     },

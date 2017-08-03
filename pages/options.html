@@ -2,9 +2,16 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <script src="../scripts/stored-sound.js"></script>
         <script src="../scripts/options.js"></script>
     </head>
     <body>
+        <section id="sound-section">
+            <h1>Sound</h1>
+            <input type="file" id="sound" accept="audio/*">
+            <p><strong>Current sound</strong> <output id="currentSound">Default</output></p>
+            <button id="resetSound" disabled type="reset">Reset sound</button><button id="playSound">Preview sound</button>
+        </section>
         <section id="website-section">
             <h1>Websites</h1>
             <label><input type="checkbox" class="all" id="allWebsites" checked> Play a sound for all websites</label>

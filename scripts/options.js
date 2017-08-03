@@ -1,15 +1,74 @@
+/* global StoredBlob */
 "use strict";
 
+//TODO preview sound
+
 const stores = {
-    extension: {
-        blocked: "blockedExtensions",
-        allowed: "allowedExtensions"
+        extension: {
+            blocked: "blockedExtensions",
+            allowed: "allowedExtensions"
+        },
+        website: {
+            blocked: "blockedWebsites",
+            allowed: "allowedWebsites"
+        }
     },
-    website: {
-        blocked: "blockedWebsites",
-        allowed: "allowedWebsites"
-    }
-};
+    Sound = {
+        defaultSound: undefined,
+        resetButton: undefined,
+        input: undefined,
+        output: undefined,
+        init() {
+            this.resetButton = document.getElementById("resetSound");
+            this.input = document.getElementById("sound");
+            this.output = document.getElementById("currentSound");
+            this.restoreFile();
+
+            this.input.addEventListener("input", () => this.selectFile(), {
+                capture: false,
+                passive: true
+            });
+            this.resetButton.addEventListener("click", () => this.reset(), {
+                capture: false,
+                passive: true
+            });
+        },
+        async reset() {
+            this.resetButton.disabled = true;
+            this.input.value = '';
+            this.output.value = 'Default';
+            const { soundName } = await browser.storage.local.get("soundName");
+            if(soundName) {
+                const storedFile = new StoredBlob(soundName);
+                await storedFile.delete();
+            }
+            return browser.storage.local.set({
+                soundName: ''
+            });
+        },
+        async selectFile() {
+            if(this.input.files.length > 0) {
+                const file = this.input.files[0];
+                this.resetButton.disabled = false;
+                this.output.value = file.name;
+                const storedFile = new StoredBlob(file.name);
+                await storedFile.save(file);
+                await browser.storage.local.set({
+                    soundName: file.name
+                });
+            }
+        },
+        restoreFile() {
+            return browser.storage.local.get({
+                soundName: ''
+            }).then(({ soundName }) => {
+                if(soundName.length) {
+                    this.output.value = soundName;
+                    this.resetButton.disabled = false;
+                }
+            });
+        }
+    };
 
 class FilterList {
     constructor(datastore, anchor) {
@@ -142,6 +201,7 @@ class Filter {
     }
 }
 window.addEventListener("DOMContentLoaded", () => {
+    Sound.init();
     new Filter(stores.extension, document.getElementById("extension-section"));
     new Filter(stores.website, document.getElementById("website-section"));
 });
