@@ -1,7 +1,6 @@
 const Database = {
     DB_NAME: "notification-sounds",
     STORE_NAME: "sounds",
-    inited: false,
     db: undefined,
     _waitForRequest(request) {
         return new Promise((resolve, reject) => {
@@ -10,14 +9,13 @@ const Database = {
         });
     },
     init() {
-        if(!this.inited) {
+        if(!this.db) {
             const request = window.indexedDB.open(Database.DB_NAME, 1);
             request.onupgradeneeded = (e) => {
                 e.target.result.createObjectStore(Database.STORE_NAME);
             };
             return new Promise((resolve, reject) => {
                 request.onsuccess = (e) => {
-                    this.inited = true;
                     this.db = e.target.result;
                     resolve();
                 };
