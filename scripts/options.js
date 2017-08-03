@@ -112,13 +112,20 @@ class FilterList {
         this.anchor.querySelector("form").addEventListener("submit", this.addListener);
     }
 
+    itemContent(value) {
+        const span = document.createElement("span");
+        span.textContent = value;
+        return span;
+    }
+
     appendItem(value) {
         const root = document.createElement("li");
-        root.appendChild(document.createTextNode(value));
+        root.appendChild(this.itemContent(value));
         root.dataset.value = value;
 
         const button = document.createElement("button");
-        button.textContent = "Remove";
+        button.textContent = "🗙";
+        button.title = "Remove";
         button.classList.add("removebutton");
         button.addEventListener("click", () => {
             this.removeItem(value);

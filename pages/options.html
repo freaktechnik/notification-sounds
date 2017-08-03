@@ -4,23 +4,23 @@
         <meta charset="utf-8">
         <script src="../scripts/stored-sound.js"></script>
         <script src="../scripts/options.js"></script>
+        <link rel="stylesheet" href="../styles/options.css">
     </head>
     <body>
         <section id="sound-section">
             <h1>Sound</h1>
-            <input type="file" id="sound" accept="audio/*">
-            <p><strong>Current sound</strong> <output id="currentSound">Default</output></p>
-            <button id="resetSound" disabled type="reset">Reset sound</button><button id="playSound">Preview sound</button>
+            <p><label for="currentSound">Current sound:</label> <output id="currentSound">Default</output><button id="playSound" title="Preview sound">▶</button><button id="resetSound" disabled type="reset" title="Reset sound">🗙</button></p>
+            <p><label for="sound">Replace sound:</label> <input type="file" id="sound" accept="audio/*"></p>
         </section>
         <section id="website-section">
             <h1>Websites</h1>
-            <label><input type="checkbox" class="all" id="allWebsites" checked> Play a sound for all websites</label>
-            <h2 class="blocked">Blocked Websites</h2>
+            <label><input type="checkbox" class="all" id="allWebsites" checked> Play sound for all websites (except ignored)</label>
+            <h2 class="blocked">Ignored Websites</h2>
             <h2 class="allowed">Allowed Websites</h2>
             <div class="filterlist">
                 <form>
-                    <input type="text" pattern="[a-zA-Z0-9-]+\.[a-z][a-z]+">
-                    <button class="addbutton" type="submit">Add</button>
+                    <input type="text" pattern="[a-zA-Z0-9-]+\.[a-z][a-z]+" inputmode="url">
+                    <button class="addbutton" type="submit" title="Add">➕</button>
                 </form>
                 <ul>
                 </ul>
@@ -28,13 +28,13 @@
         </section>
         <section id="extension-section">
             <h1>Extensions</h1>
-            <label><input type="checkbox" class="all" id="allExtensions" checked> Play a sound for all extensions</label>
-            <h2 class="blocked">Blocked Extensions</h2>
+            <label><input type="checkbox" class="all" id="allExtensions" checked> Play sound for all extensions (except ignored)</label>
+            <h2 class="blocked">Ignored Extensions</h2>
             <h2 class="allowed">Allowed Extensions</h2>
             <div class="filterlist">
                 <form>
                     <input type="text">
-                    <button class="addbutton" type="submit">Add</button>
+                    <button class="addbutton" type="submit" title="Add">➕</button>
                 </form>
                 <ul>
                 </ul>

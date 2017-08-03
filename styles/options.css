@@ -1,0 +1,38 @@
+#playSound,
+output {
+    margin-right: 0.5em;
+}
+
+label[for="currentSound"] {
+    font-weight: bold;
+}
+
+.filterlist {
+    max-height: 500px;
+}
+
+.filterlist form {
+    display: flex;
+}
+
+.filterlist input,
+.filterlist ul > li span {
+    flex-grow: 2;
+    margin-right: 0.5em;
+}
+
+.filterlist ul {
+    list-style-type: none;
+    margin: 0.5em 0;
+    padding: 0;
+}
+
+.filterlist ul > li {
+    margin: 0;
+    padding: 0.25em 0;
+    display: flex;
+}
+
+footer {
+    font-size: 0.8em;
+}
