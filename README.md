@@ -4,6 +4,12 @@
 
 Makes a sound when a notification is shown
 
+## Extension integration
+For extensions to trigger a sound when creating a notification, they have to send the following message:
+```js
+browser.runtime.sendMessage("@notification-sound", "new-notification");
+```
+
 ## License
 The code that makes up this project is licensed under the MPL-2.0
 
