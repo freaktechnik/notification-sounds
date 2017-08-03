@@ -32,6 +32,12 @@ const stores = {
                 capture: false,
                 passive: true
             });
+            document.getElementById("playSound").addEventListener("click", () => {
+                browser.runtime.sendMessage("preview-sound");
+            }, {
+                capture: false,
+                passive: true
+            });
         },
         async reset() {
             this.resetButton.disabled = true;

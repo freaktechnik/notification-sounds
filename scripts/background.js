@@ -99,6 +99,9 @@ browser.runtime.onMessage.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC && sender.url.startsWith("http")) {
         return NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url));
     }
+    else if(message === "preview-sound") {
+        NotificationListener.makeSound();
+    }
 });
 browser.runtime.onMessageExternal.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC) {
