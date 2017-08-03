@@ -1,12 +1,22 @@
 /* global XPCNativeWrapper, exportFunction */
 /* eslint-disable new-cap */
-class Notification extends XPCNativeWrapper(window.wrappedJSObject.Notification) {
+window.addEventListener("notificationshown", ({ detail }) => {
+    if(!detail) {
+        browser.runtime.sendMessage("new-notification");
+    }
+}, {
+    passive: true,
+    capture: true
+});
+
+window.eval(`window.Notification = class extends Notification {
     constructor(title, options) {
         super(title, options);
-        if(!options.silent) {
-            browser.runtime.sendMessage("new-notification");
+        if(Notification.permission === "granted") {
+            const e = new CustomEvent('notificationshown', {
+                detail: options ? options.silent: false
+            });
+            window.dispatchEvent(e);
         }
     }
-}
-//TODO this probably doesn't work.
-exportFunction(Notification, window.wrappedJSObject, { defineAs: 'Notification' });
+};`);
