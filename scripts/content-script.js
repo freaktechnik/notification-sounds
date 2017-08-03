@@ -1,6 +1,7 @@
 /* global XPCNativeWrapper, exportFunction */
 /* eslint-disable new-cap */
-window.addEventListener("notificationshown", ({ detail }) => {
+const EVENT = "we-ns-notificationshown";
+window.addEventListener(EVENT, ({ detail }) => {
     if(!detail) {
         browser.runtime.sendMessage("new-notification");
     }
@@ -13,7 +14,7 @@ window.eval(`window.Notification = class extends Notification {
     constructor(title, options) {
         super(title, options);
         if(Notification.permission === "granted") {
-            const e = new CustomEvent('notificationshown', {
+            const e = new CustomEvent('${EVENT}', {
                 detail: options ? options.silent: false
             });
             window.dispatchEvent(e);
