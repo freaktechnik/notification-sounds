@@ -1,7 +1,9 @@
 /* global StoredBlob */
 "use strict";
 
-//TODO preview sound
+//TODO nicer look for extensions list. Probably needs some inter-extension communication though :S
+//TODO provide some default extension IDs as autocomplete or similar?
+//TODO  -> suggest extensions that have shown notifications this session (use-case: person wants to block an extension)?
 
 const stores = {
         extension: {

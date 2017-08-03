@@ -1,7 +1,6 @@
 /* global StoredBlob */
 "use strict";
 
-//TODO provide some default extension IDs
 //TODO tab context menu to quickly whitelist/unwhitelist host
 //TODO sync?
 
@@ -11,7 +10,7 @@ const SOURCES = {
     },
     NOTIFICATION_TOPIC = "new-notification",
     NotificationListener = {
-        DEFAULT_SOUND: browser.runtime.getURL('ping.ogg'),
+        DEFAULT_SOUND: browser.runtime.getURL('pop.flac'),
         init() {
             this.player = new Audio();
             this.player.autoplay = false;
@@ -39,7 +38,6 @@ const SOURCES = {
                 this.player.src = URL.createObjectURL(file);
             }
             else {
-                //TODO actually add ping.ogg
                 this.player.src = this.DEFAULT_SOUND;
             }
         },
