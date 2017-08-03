@@ -1,7 +1,7 @@
 /* global StoredBlob */
 "use strict";
 
-//TODO tab context menu to quickly whitelist/unwhitelist host
+//TODO tab context menu to quickly whitelist/unwhitelist host (requires the before show listener to prepare)
 //TODO sync?
 
 const SOURCES = {
@@ -106,4 +106,5 @@ browser.runtime.onMessageExternal.addListener((message, sender) => {
         return NotificationListener.onNotification(SOURCES.EXTENSION, sender.id);
     }
 });
+
 NotificationListener.init();
