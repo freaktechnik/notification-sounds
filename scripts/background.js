@@ -91,6 +91,15 @@ const SOURCES = {
     extractHost = (url) => {
         const urlObj = new URL(url);
         return urlObj.hostname;
+    },
+    RecentExtensions = {
+        recents: new Set(),
+        add(id) {
+            this.recents.add(id);
+        },
+        get() {
+            return Array.from(this.recents);
+        }
     };
 
 browser.runtime.onMessage.addListener((message, sender) => {
@@ -100,9 +109,13 @@ browser.runtime.onMessage.addListener((message, sender) => {
     else if(message === "preview-sound") {
         NotificationListener.makeSound();
     }
+    else if(message === "recent-extensions") {
+        return Promise.resolve(RecentExtensions.get());
+    }
 });
 browser.runtime.onMessageExternal.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC) {
+        RecentExtensions.add(sender.id);
         return NotificationListener.onNotification(SOURCES.EXTENSION, sender.id);
     }
 });

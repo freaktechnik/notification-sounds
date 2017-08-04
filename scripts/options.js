@@ -219,4 +219,15 @@ window.addEventListener("DOMContentLoaded", () => {
     Sound.init();
     new Filter(stores.extension, document.getElementById("extension-section"));
     new Filter(stores.website, document.getElementById("website-section"));
+
+    browser.runtime.sendMessage("recent-extensions").then((recents) => {
+        const datalist = document.getElementById("extensions");
+        const existingRecents = Array.from(datalist.options).map((o) => o.value);
+        for(const recent of recents) {
+            if(!existingRecents.includes(recent)) {
+                const o = new Option(recent);
+                datalist.appendChild(o);
+            }
+        }
+    });
 });
