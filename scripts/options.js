@@ -56,10 +56,10 @@ const stores = {
         },
         async selectFile() {
             if(this.input.files.length > 0) {
-                const file = this.input.files[0];
+                const file = this.input.files[0],
+                    storedFile = new StoredBlob(file.name);
                 this.resetButton.disabled = false;
                 this.output.value = file.name;
-                const storedFile = new StoredBlob(file.name);
                 await storedFile.save(file);
                 await browser.storage.local.set({
                     soundName: file.name
@@ -119,11 +119,11 @@ class FilterList {
     }
 
     appendItem(value) {
-        const root = document.createElement("li");
+        const root = document.createElement("li"),
+            button = document.createElement("button");
         root.appendChild(this.itemContent(value));
         root.dataset.value = value;
 
-        const button = document.createElement("button");
         button.textContent = "🗙";
         button.title = "Remove";
         button.classList.add("removebutton");
@@ -148,13 +148,12 @@ class FilterList {
 
     removeItem(value) {
         const p = browser.storage.local.get(this.datastore).then((values) => {
-            const newValue = values[this.datastore].filter((v) => v !== value);
-            return browser.storage.local.set({
-                [this.datastore]: newValue
-            });
-        });
-
-        const item = document.querySelector(`[data-value="${value}"]`);
+                const newValue = values[this.datastore].filter((v) => v !== value);
+                return browser.storage.local.set({
+                    [this.datastore]: newValue
+                });
+            }),
+            item = document.querySelector(`[data-value="${value}"]`);
         item.remove();
         return p;
     }
@@ -221,8 +220,8 @@ window.addEventListener("DOMContentLoaded", () => {
     new Filter(stores.website, document.getElementById("website-section"));
 
     browser.runtime.sendMessage("recent-extensions").then((recents) => {
-        const datalist = document.getElementById("extensions");
-        const existingRecents = Array.from(datalist.options).map((o) => o.value);
+        const datalist = document.getElementById("extensions"),
+            existingRecents = Array.from(datalist.options).map((o) => o.value);
         for(const recent of recents) {
             if(!existingRecents.includes(recent)) {
                 const o = new Option(recent);

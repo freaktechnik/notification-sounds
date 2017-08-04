@@ -33,8 +33,8 @@ const SOURCES = {
                 URL.revokeObjectURL(oldURL);
             }
             if(soundName.length) {
-                const storedFile = new StoredBlob(soundName);
-                const file = await storedFile.get();
+                const storedFile = new StoredBlob(soundName),
+                    file = await storedFile.get();
                 this.player.src = URL.createObjectURL(file);
             }
             else {
