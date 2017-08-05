@@ -1,4 +1,4 @@
-# ![icon](/icon.png) Notification Sound
+# ![icon](images/icon-48.png) Notification Sound
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/freaktechnik/notification-sounds.svg)](https://greenkeeper.io/) [![Build Status](https://travis-ci.org/freaktechnik/notification-sounds.svg?branch=master)](https://travis-ci.org/freaktechnik/notification-sounds)
 
