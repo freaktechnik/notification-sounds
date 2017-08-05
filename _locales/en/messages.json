@@ -4,5 +4,8 @@
     },
     "extensionDescription": {
         "message": "Makes a sound when a notification is shown"
+    },
+    "remove": {
+        "message": "Remove"
     }
 }

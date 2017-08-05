@@ -125,7 +125,7 @@ class FilterList {
         root.dataset.value = value;
 
         button.textContent = "🗙";
-        button.title = "Remove";
+        button.title = browser.i18n.getMessage("remove");
         button.classList.add("removebutton");
         button.addEventListener("click", () => {
             this.removeItem(value);
