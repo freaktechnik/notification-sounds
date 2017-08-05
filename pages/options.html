@@ -12,7 +12,7 @@
             <p><label for="currentSound">Current sound:</label> <output id="currentSound">Default</output><button id="playSound" title="Preview sound">▶</button><button id="resetSound" disabled type="reset" title="Reset sound">🗙</button></p>
             <p><label for="sound">Replace sound:</label> <input type="file" id="sound" accept="audio/*"></p>
             <footer>
-                <p>The default sound is licensed under the <a href="https://creativecommons.org/licenses/by/3.0/" rel="noopener" target="_blank">CC-3.0-BY license</a> and was created by <a href="https://freesound.org/people/unfa/" rel="noopener" target="_blank">Tobiasz 'unfa' Karoń</a> and available <a href="https://freesound.org/people/unfa/sounds/245645/" rel="noopener" target="_blank">here</a>.</p>
+                <p>The default sound was created by <a href="https://freesound.org/people/unfa/" rel="noopener" target="_blank">Tobiasz 'unfa' Karoń</a> and available <a href="https://freesound.org/people/unfa/sounds/245645/" rel="noopener" target="_blank">here</a> under the <a href="https://creativecommons.org/licenses/by/3.0/" rel="noopener" target="_blank">CC-3.0-BY license</a>.</p>
             </footer>
         </section>
         <section id="website-section">
@@ -22,7 +22,7 @@
             <h2 class="allowed">Allowed Websites</h2>
             <div class="filterlist">
                 <form>
-                    <input type="text" pattern="[a-zA-Z0-9-]+\.[a-z][a-z]+" inputmode="url">
+                    <input type="text" pattern="[a-zA-Z0-9-]+\.[a-z][a-z]+" inputmode="url" minlength="1" required>
                     <button class="addbutton" type="submit" title="Add">➕</button>
                 </form>
                 <ul>
@@ -36,7 +36,7 @@
             <h2 class="allowed">Allowed Extensions</h2>
             <div class="filterlist">
                 <form>
-                    <input type="text" list="extensions">
+                    <input type="text" list="extensions" minlength="1" required>
                     <datalist id="extensions">
                         <option value="jid0-z2wAjbeFD5dTCgsj70eQ6UAqQl4@jetpack">Live Stream Notifier</option>
                     </datalist>

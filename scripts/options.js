@@ -103,7 +103,7 @@ class FilterList {
 
         this.addListener = (e) => {
             e.preventDefault();
-            if(input.validity.valid) {
+            if(input.validity.valid && input.value != "") {
                 this.addItem(input.value);
                 input.value = "";
             }
