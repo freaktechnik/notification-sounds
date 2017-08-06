@@ -22,7 +22,7 @@
             <h2 class="allowed">Allowed Websites</h2>
             <div class="filterlist">
                 <form>
-                    <input type="text" pattern="[a-zA-Z0-9-]+\.[a-z][a-z]+" inputmode="url" minlength="1" required>
+                    <label>Hostname: <input type="text" pattern="[a-zA-Z0-9-]+\.[a-z][a-z]+" inputmode="url" minlength="1" required placeholder="example.com"></label>
                     <button class="addbutton" type="submit" title="Add">➕</button>
                 </form>
                 <ul>
@@ -36,7 +36,7 @@
             <h2 class="allowed">Allowed Extensions</h2>
             <div class="filterlist">
                 <form>
-                    <input type="text" list="extensions" minlength="1" required>
+                    <label>Extension ID: <input type="text" list="extensions" minlength="1" required></label>
                     <datalist id="extensions">
                         <option value="jid0-z2wAjbeFD5dTCgsj70eQ6UAqQl4@jetpack">Live Stream Notifier</option>
                     </datalist>
