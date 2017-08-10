@@ -11,14 +11,21 @@ label[for="currentSound"] {
     max-height: 500px;
 }
 
-.filterlist form {
+.filterlist form,
+.filterlist label {
     display: flex;
+    align-items: baseline;
 }
 
-.filterlist input,
+.filterlist label,
 .filterlist ul > li span {
     flex-grow: 2;
     margin-right: 0.5em;
+}
+
+.filterlist label input {
+    flex-grow: 2;
+    margin-left: 0.5em;
 }
 
 .filterlist ul {
