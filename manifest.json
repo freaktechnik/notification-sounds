@@ -26,7 +26,8 @@
         "browser_style": true
     },
     "permissions": [
-        "storage"
+        "storage",
+        "management"
     ],
     "content_scripts": [
         {

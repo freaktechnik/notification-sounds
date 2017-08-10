@@ -112,16 +112,16 @@ class FilterList {
         this.anchor.querySelector("form").addEventListener("submit", this.addListener);
     }
 
-    itemContent(value) {
+    async itemContent(value) {
         const span = document.createElement("span");
         span.textContent = value;
         return span;
     }
 
-    appendItem(value) {
+    async appendItem(value) {
         const root = document.createElement("li"),
             button = document.createElement("button");
-        root.appendChild(this.itemContent(value));
+        root.appendChild(await this.itemContent(value));
         root.dataset.value = value;
 
         button.textContent = "🗙";
@@ -137,13 +137,13 @@ class FilterList {
     }
 
     addItem(value) {
-        const p = browser.storage.local.get(this.datastore).then((values) => {
-            values[this.datastore].push(value);
-            return browser.storage.local.set(values);
-        });
-
-        this.appendItem(value);
-        return p;
+        return Promise.all([
+            browser.storage.local.get(this.datastore).then((values) => {
+                values[this.datastore].push(value);
+                return browser.storage.local.set(values);
+            }),
+            this.appendItem(value)
+        ]);
     }
 
     removeItem(value) {
@@ -169,9 +169,10 @@ class FilterList {
 }
 
 class Filter {
-    constructor(stores, section) {
+    constructor(stores, section, listType = FilterList) {
         this.stores = stores;
         this.section = section;
+        this.listType = listType;
 
         this.all = this.section.querySelector(".all");
 
@@ -202,10 +203,10 @@ class Filter {
 
         const anchor = this.section.querySelector(".filterlist");
         if(this.all.checked) {
-            this.list = new FilterList(this.stores.blocked, anchor);
+            this.list = new this.listType(this.stores.blocked, anchor);
         }
         else {
-            this.list = new FilterList(this.stores.allowed, anchor);
+            this.list = new this.listType(this.stores.allowed, anchor);
         }
     }
 
@@ -214,9 +215,24 @@ class Filter {
         this.section.querySelector(".allowed").hidden = this.all.checked;
     }
 }
+
+class ExtensionFilterList extends FilterList {
+    async itemContent(value) {
+        try {
+            const extension = await browser.management.get(value);
+            const span = document.createElement("span");
+            span.appendChild(document.createTextNode(`${extension.name} (${extension.id})`));
+            return span;
+        }
+        catch(e) {
+            return super.itemContent(value);
+        }
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     Sound.init();
-    new Filter(stores.extension, document.getElementById("extension-section"));
+    new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"));
 
     browser.runtime.sendMessage("recent-extensions").then((recents) => {
