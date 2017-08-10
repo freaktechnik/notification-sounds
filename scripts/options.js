@@ -202,11 +202,12 @@ class Filter {
         }
 
         const anchor = this.section.querySelector(".filterlist");
+        const ListConstructor = this.listType;
         if(this.all.checked) {
-            this.list = new this.listType(this.stores.blocked, anchor);
+            this.list = new ListConstructor(this.stores.blocked, anchor);
         }
         else {
-            this.list = new this.listType(this.stores.allowed, anchor);
+            this.list = new ListConstructor(this.stores.allowed, anchor);
         }
     }
 
