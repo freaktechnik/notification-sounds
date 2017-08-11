@@ -236,14 +236,20 @@ window.addEventListener("DOMContentLoaded", () => {
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"));
 
+
+    const datalist = document.getElementById("extensions");
     browser.runtime.sendMessage("recent-extensions").then((recents) => {
-        const datalist = document.getElementById("extensions"),
-            existingRecents = Array.from(datalist.options).map((o) => o.value);
+        const existingRecents = Array.from(datalist.options).map((o) => o.value),
+            promises = [];
         for(const recent of recents) {
             if(!existingRecents.includes(recent)) {
-                const o = new Option(recent);
-                datalist.appendChild(o);
+                promises.push(browser.management.get(recent).then((e) => new Option(e.name, recent), () => new Option(recent)));
             }
+        }
+        return Promise.all(promises);
+    }).then((options) => {
+        for(const o of options) {
+            datalist.appendChild(o);
         }
     });
 });
