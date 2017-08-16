@@ -57,7 +57,7 @@ const SOURCES = {
         },
         async websiteAllowed(host) {
             if(host.startsWith("www.")) {
-                host = hist.substr(4);
+                host = host.substr(4);
             }
             const { allWebsites, allowedWebsites, blockedWebsites } = await
                 browser.storage.local.get({
