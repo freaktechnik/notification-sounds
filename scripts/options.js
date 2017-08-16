@@ -136,14 +136,24 @@ class FilterList {
         this.list.appendChild(root);
     }
 
+    validate(value) {
+        return value;
+    }
+
     addItem(value) {
-        return Promise.all([
-            browser.storage.local.get(this.datastore).then((values) => {
-                values[this.datastore].push(value);
-                return browser.storage.local.set(values);
-            }),
-            this.appendItem(value)
-        ]);
+        try {
+            value = this.validate(value);
+            Promise.all([
+                browser.storage.local.get(this.datastore).then((values) => {
+                    values[this.datastore].push(value);
+                    return browser.storage.local.set(values);
+                }),
+                this.appendItem(value)
+            ]);
+        }
+        catch(e) {
+            // Do nothing
+        }
     }
 
     removeItem(value) {
@@ -231,10 +241,22 @@ class ExtensionFilterList extends FilterList {
     }
 }
 
+class HostFilterList extends FilterList {
+    validate(value) {
+        if(value.search(/[a-zA-Z0-9-\.]+\.[a-z][a-z]+/) === -1) {
+            throw new Error();
+        }
+        if(value.startsWith("www.")) {
+            return value.substr(4);
+        }
+        return value;
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     Sound.init();
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
-    new Filter(stores.website, document.getElementById("website-section"));
+    new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
 
 
     const datalist = document.getElementById("extensions");
