@@ -243,7 +243,7 @@ class ExtensionFilterList extends FilterList {
 
 class HostFilterList extends FilterList {
     validate(value) {
-        if(value.search(/[a-zA-Z0-9-\.]+\.[a-z][a-z]+/) === -1) {
+        if(value.search(/[a-zA-Z0-9-.]+\.[a-z][a-z]+/) === -1) {
             throw new Error();
         }
         if(value.startsWith("www.")) {
