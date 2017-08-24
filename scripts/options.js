@@ -43,6 +43,7 @@ const stores = {
         },
         async reset() {
             this.resetButton.disabled = true;
+            this.resetButton.classList.add("disabled");
             this.input.value = '';
             this.output.value = 'Default';
             const { soundName } = await browser.storage.local.get("soundName");
@@ -59,6 +60,7 @@ const stores = {
                 const file = this.input.files[0],
                     storedFile = new StoredBlob(file.name);
                 this.resetButton.disabled = false;
+                this.resetButton.classList.remove("disabled");
                 this.output.value = file.name;
                 await storedFile.save(file);
                 await browser.storage.local.set({
@@ -127,6 +129,7 @@ class FilterList {
         button.textContent = "🗙";
         button.title = browser.i18n.getMessage("remove");
         button.classList.add("removebutton");
+        button.classList.add("browser-style");
         button.addEventListener("click", () => {
             this.removeItem(value);
         });

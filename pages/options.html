@@ -9,21 +9,21 @@
     <body>
         <section id="sound-section">
             <h1>Sound</h1>
-            <p><label for="currentSound">Current sound:</label> <output id="currentSound">Default</output><button id="playSound" title="Preview sound">▶</button><button id="resetSound" disabled type="reset" title="Reset sound">🗙</button></p>
-            <p><label for="sound">Replace sound:</label> <input type="file" id="sound" accept="audio/*"></p>
+            <p><label for="currentSound" class="browser-style-label">Current sound:</label> <output id="currentSound">Default</output><button id="playSound" title="Preview sound" class="browser-style">▶</button><button id="resetSound" class="browser-style disabled" disabled type="reset" title="Reset sound">🗙</button></p>
+            <p class="browser-style"><label for="sound">Replace sound:</label> <input type="file" id="sound" accept="audio/*"></p>
             <footer>
                 <p>The default sound was created by <a href="https://freesound.org/people/unfa/" rel="noopener" target="_blank">Tobiasz 'unfa' Karoń</a> and available <a href="https://freesound.org/people/unfa/sounds/245645/" rel="noopener" target="_blank">here</a> under the <a href="https://creativecommons.org/licenses/by/3.0/" rel="noopener" target="_blank">CC-3.0-BY license</a>.</p>
             </footer>
         </section>
         <section id="website-section">
             <h1>Websites</h1>
-            <label><input type="checkbox" class="all" id="allWebsites" checked> Play sound for all websites (except ignored)</label>
+            <label class="browser-style browser-style-label"><input type="checkbox" class="all" id="allWebsites" checked><label for="allWebsites"></label> Play sound for all websites (except ignored)</label>
             <h2 class="blocked">Ignored Websites</h2>
             <h2 class="allowed">Allowed Websites</h2>
             <div class="filterlist">
                 <form>
-                    <label>Hostname: <input type="text" pattern="[a-zA-Z0-9-\.]+\.[a-z][a-z]+" inputmode="url" minlength="1" required placeholder="example.com"></label>
-                    <button class="addbutton" type="submit" title="Add">➕</button>
+                    <label class="browser-style browser-style-label">Hostname: <input type="text" pattern="[a-zA-Z0-9-\.]+\.[a-z][a-z]+" inputmode="url" minlength="1" required placeholder="example.com"></label>
+                    <button class="addbutton browser-style default" type="submit" title="Add">➕</button>
                 </form>
                 <ul>
                 </ul>
@@ -31,21 +31,21 @@
         </section>
         <section id="extension-section">
             <h1>Extensions</h1>
-            <label><input type="checkbox" class="all" id="allExtensions" checked> Play sound for all supported extensions (except ignored)</label>
+            <label class="browser-style browser-style-label"><input type="checkbox" class="all" id="allExtensions" checked><label for="allExtensions"></label> Play sound for all supported extensions (except ignored)</label>
             <h2 class="blocked">Ignored Extensions</h2>
             <h2 class="allowed">Allowed Extensions</h2>
             <div class="filterlist">
                 <form>
-                    <label>Extension ID: <input type="text" list="extensions" minlength="1" required></label>
+                    <label class="browser-style browser-style-label">Extension ID: <input type="text" list="extensions" minlength="1" required></label>
                     <datalist id="extensions">
                         <option value="jid0-z2wAjbeFD5dTCgsj70eQ6UAqQl4@jetpack">Live Stream Notifier</option>
                         <option value="{8d4b86c5-64bf-4780-b029-0112386735ab}">Advanced GitHub Notifications</options>
                     </datalist>
-                    <button class="addbutton" type="submit" title="Add">➕</button>
+                    <button class="addbutton browser-style default" type="submit" title="Add">➕</button>
                 </form>
                 <p>Suggested extension IDs:</p>
-                <p><strong>Live Stream Notifier</strong>: <input readonly value="jid0-z2wAjbeFD5dTCgsj70eQ6UAqQl4@jetpack"></p>
-                <p><strong>Advanced GitHub Notifications</strong>: <input readonly value="{8d4b86c5-64bf-4780-b029-0112386735ab}"></p>
+                <p class="browser-style"><strong>Live Stream Notifier</strong>: <input readonly value="jid0-z2wAjbeFD5dTCgsj70eQ6UAqQl4@jetpack"></p>
+                <p class="browser-style"><strong>Advanced GitHub Notifications</strong>: <input readonly value="{8d4b86c5-64bf-4780-b029-0112386735ab}"></p>
                 <ul>
                 </ul>
             </div>
