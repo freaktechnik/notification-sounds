@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "eslint": "^4.3.0",
-    "eslint-plugin-freaktechnik": "^2.5.0",
+    "eslint-plugin-freaktechnik": "^3.0.0",
     "web-ext": "^2.0.0"
   }
 }
