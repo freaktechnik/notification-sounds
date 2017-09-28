@@ -1,4 +1,3 @@
-/* eslint-disable no-eval */
 const EVENT = "we-ns-notificationshown";
 window.addEventListener(EVENT, ({ detail }) => {
     if(!detail && Notification.permission === "granted") {
@@ -13,6 +12,7 @@ window.addEventListener(EVENT, ({ detail }) => {
 // (and does) go wrong, that I eventually gave up and this works very well and
 // seems secure-enough.
 
+/* eslint-disable no-eval */
 window.eval(`window.Notification = class extends Notification {
     constructor(title, options) {
         super(title, options);
@@ -24,3 +24,4 @@ window.eval(`window.Notification = class extends Notification {
         }
     }
 };`);
+/* eslint-enable no-eval */

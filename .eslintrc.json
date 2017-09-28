@@ -1,9 +1,9 @@
 {
-    "env": {
-        "webextensions": true
-    },
+    "plugins": [
+        "compat"
+    ],
     "rules": {
-        "strict": 0
+        "compat/compat": 2
     },
-    "extends": "plugin:freaktechnik/browser"
+    "extends": "plugin:freaktechnik/extension"
 }

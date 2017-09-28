@@ -42,7 +42,9 @@ const SOURCES = {
             }
         },
         async extensionAllowed(id) {
-            const { allExtensions, allowedExtensions, blockedExtensions } = await
+            const {
+                allExtensions, allowedExtensions, blockedExtensions
+            } = await
                 browser.storage.local.get({
                     allExtensions: true,
                     allowedExtensions: [],
@@ -51,26 +53,26 @@ const SOURCES = {
             if(allExtensions) {
                 return !blockedExtensions.includes(id);
             }
-            else {
-                return allowedExtensions.includes(id);
-            }
+
+            return allowedExtensions.includes(id);
         },
         async websiteAllowed(host) {
-            if(host.startsWith("www.")) {
-                host = host.substr(4);
-            }
-            const { allWebsites, allowedWebsites, blockedWebsites } = await
-                browser.storage.local.get({
+            const WWW_PREFIX = "www.",
+                {
+                    allWebsites, allowedWebsites, blockedWebsites
+                } = await browser.storage.local.get({
                     allWebsites: true,
                     allowedWebsites: [],
                     blockedWebsites: []
                 });
+            if(host.startsWith(WWW_PREFIX)) {
+                host = host.substr(WWW_PREFIX.length);
+            }
             if(allWebsites) {
                 return !blockedWebsites.includes(host);
             }
-            else {
-                return allowedWebsites.includes(host);
-            }
+
+            return allowedWebsites.includes(host);
         },
         shouldMakeSound(source, sourceSpec) {
             if(source === SOURCES.EXTENSION) {

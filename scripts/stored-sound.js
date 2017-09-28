@@ -1,27 +1,22 @@
 const Database = {
     DB_NAME: "notification-sounds",
+    DB_VERSION: 1,
     STORE_NAME: "sounds",
     db: undefined,
     _waitForRequest(request) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => { // eslint-disable-line promise/avoid-new
             request.onsuccess = (e) => resolve(e.target.result);
             request.onerror = reject;
         });
     },
     init() {
         if(!this.db) {
-            const request = window.indexedDB.open(Database.DB_NAME, 1);
+            const request = window.indexedDB.open(Database.DB_NAME, Database.DB_VERSION);
             request.onupgradeneeded = (e) => {
                 e.target.result.createObjectStore(Database.STORE_NAME);
             };
-            return new Promise((resolve, reject) => {
-                request.onsuccess = (e) => {
-                    this.db = e.target.result;
-                    resolve();
-                };
-                request.onerror = (e) => {
-                    reject(e);
-                };
+            return this._waitForRequest(request).then((r) => {
+                this.db = r;
             });
         }
         return Promise.resolve();

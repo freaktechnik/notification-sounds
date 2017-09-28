@@ -56,8 +56,8 @@ const stores = {
             });
         },
         async selectFile() {
-            if(this.input.files.length > 0) {
-                const file = this.input.files[0],
+            if(this.input.files.length) {
+                const file = this.input.files.shift(),
                     storedFile = new StoredBlob(file.name);
                 this.resetButton.disabled = false;
                 this.resetButton.classList.remove("disabled");
@@ -88,18 +88,19 @@ class FilterList {
 
         browser.storage.local.get({
             [this.datastore]: []
-        }).then((values) => {
-            if(values[this.datastore].length === 0) {
-                return browser.storage.local.set({
-                    [this.datastore]: []
-                });
-            }
-            else {
+        })
+            .then((values) => {
+                if(!values[this.datastore].length) {
+                    return browser.storage.local.set({
+                        [this.datastore]: []
+                    });
+                }
+
                 for(const value of values[this.datastore]) {
                     this.appendItem(value);
                 }
-            }
-        });
+            })
+            .catch(console.error);
 
         const input = this.anchor.querySelector("input");
 
@@ -152,7 +153,7 @@ class FilterList {
                     return browser.storage.local.set(values);
                 }),
                 this.appendItem(value)
-            ]);
+            ]).catch(console.error);
         }
         catch(e) {
             // Do nothing
@@ -172,7 +173,7 @@ class FilterList {
     }
 
     clear() {
-        const children = this.list.children;
+        const { children } = this.list;
         for(const ch of children) {
             ch.remove();
         }
@@ -191,10 +192,12 @@ class Filter {
 
         browser.storage.local.get({
             [this.all.id]: true
-        }).then((values) => {
-            this.all.checked = values[this.all.id];
-            this.update();
-        });
+        })
+            .then((values) => {
+                this.all.checked = values[this.all.id];
+                this.update();
+            })
+            .catch(console.error);
 
         this.all.addEventListener("input", () => {
             this.update();
@@ -214,8 +217,8 @@ class Filter {
             this.list.clear();
         }
 
-        const anchor = this.section.querySelector(".filterlist");
-        const ListConstructor = this.listType;
+        const anchor = this.section.querySelector(".filterlist"),
+            ListConstructor = this.listType;
         if(this.all.checked) {
             this.list = new ListConstructor(this.stores.blocked, anchor);
         }
@@ -233,8 +236,8 @@ class Filter {
 class ExtensionFilterList extends FilterList {
     async itemContent(value) {
         try {
-            const extension = await browser.management.get(value);
-            const span = document.createElement("span");
+            const extension = await browser.management.get(value),
+                span = document.createElement("span");
             span.appendChild(document.createTextNode(`${extension.name} (${extension.id})`));
             return span;
         }
@@ -246,11 +249,13 @@ class ExtensionFilterList extends FilterList {
 
 class HostFilterList extends FilterList {
     validate(value) {
-        if(value.search(/[a-zA-Z0-9-.]+\.[a-z][a-z]+/) === -1) {
+        const NO_RESULT = -1;
+        if(value.search(/[a-zA-Z0-9-.]+\.[a-z][a-z]+/) === NO_RESULT) {
             throw new Error();
         }
-        if(value.startsWith("www.")) {
-            return value.substr(4);
+        const WWW_PREFIX = "www.";
+        if(value.startsWith(WWW_PREFIX)) {
+            return value.substr(WWW_PREFIX.length);
         }
         return value;
     }
@@ -263,18 +268,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     const datalist = document.getElementById("extensions");
-    browser.runtime.sendMessage("recent-extensions").then((recents) => {
-        const existingRecents = Array.from(datalist.options).map((o) => o.value),
-            promises = [];
-        for(const recent of recents) {
-            if(!existingRecents.includes(recent)) {
-                promises.push(browser.management.get(recent).then((e) => new Option(e.name, recent), () => new Option(recent)));
+    browser.runtime.sendMessage("recent-extensions")
+        .then((recents) => {
+            const existingRecents = Array.from(datalist.options).map((o) => o.value),
+                promises = [];
+            for(const recent of recents) {
+                if(!existingRecents.includes(recent)) {
+                    promises.push(browser.management.get(recent).then((e) => new Option(e.name, recent), () => new Option(recent)));
+                }
             }
-        }
-        return Promise.all(promises);
-    }).then((options) => {
-        for(const o of options) {
-            datalist.appendChild(o);
-        }
-    });
+            return Promise.all(promises);
+        })
+        .then((options) => {
+            for(const o of options) {
+                datalist.appendChild(o);
+            }
+        })
+        .catch(console.error);
 });
