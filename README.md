@@ -10,6 +10,13 @@ For extensions to trigger a sound when creating a notification, they have to sen
 browser.runtime.sendMessage("@notification-sound", "new-notification");
 ```
 
+Starting from Firefox 56, an extension can just add the following code to the top level of its background page to send the message whenever it shows a notification:
+```js
+browser.notifications.onShown.addListener(() => {
+    browser.runtime.sendMessage("@notification-sound", "new-notification");
+});
+```
+
 ## License
 The code that makes up this project is licensed under the MPL-2.0
 
