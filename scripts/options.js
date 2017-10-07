@@ -270,7 +270,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const datalist = document.getElementById("extensions");
     browser.runtime.sendMessage("recent-extensions")
         .then((recents) => {
-            const existingRecents = Array.from(datalist.options).map((o) => o.value),
+            const existingRecents = Array.from(datalist.options, (o) => o.value),
                 promises = [];
             for(const recent of recents) {
                 if(!existingRecents.includes(recent)) {
