@@ -105,6 +105,26 @@ const SOURCES = {
         get() {
             return Array.from(this.recents);
         }
+    },
+    DownloadListener = {
+        DOWNLOAD_COMPLETE: "complete",
+        init() {
+            browser.downloads.onChanged.addListener(async (download) => {
+                if(download.state.current === this.DOWNLOAD_COMPLETE && download.state.previous !== this.DOWNLOAD_COMPLETE) {
+                    const lastWindow = await browser.windows.getLastFocused({
+                        windowTypes: [ 'normal' ]
+                    });
+                    if(!lastWindow.focused || lastWindow.state === "minimized") {
+                        const downloadSound = await browser.storage.local.get({
+                            download: true
+                        });
+                        if(downloadSound) {
+                            NotificationListener.makeSound();
+                        }
+                    }
+                }
+            });
+        }
     };
 
 browser.runtime.onMessage.addListener((message, sender) => {
@@ -126,3 +146,4 @@ browser.runtime.onMessageExternal.addListener((message, sender) => {
 });
 
 NotificationListener.init();
+DownloadListener.init();

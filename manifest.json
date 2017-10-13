@@ -27,7 +27,8 @@
     },
     "permissions": [
         "storage",
-        "management"
+        "management",
+        "downloads"
     ],
     "content_scripts": [
         {

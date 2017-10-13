@@ -78,6 +78,28 @@ const stores = {
                 }
             });
         }
+    },
+    Download = {
+        STORAGE_KEY: "download",
+        DEFAULT: true,
+        checkbox: null,
+        init() {
+            this.checkbox = document.getElementById("download");
+
+            this.checkbox.addEventListener("change", () => {
+                browser.storage.local.set({
+                    [this.STORAGE_KEY]: this.checkbox.checked
+                });
+            });
+
+            browser.storage.local.get({
+                [this.STORAGE_KEY]: this.DEFAULT
+            })
+                .then(({ [this.STORAGE_KEY]: value }) => {
+                    this.checkbox.checked = value;
+                })
+                .catch(console.error);
+        }
     };
 
 class FilterList {
@@ -265,6 +287,7 @@ window.addEventListener("DOMContentLoaded", () => {
     Sound.init();
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
+    Download.init();
 
 
     const datalist = document.getElementById("extensions");
