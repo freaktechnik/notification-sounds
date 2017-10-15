@@ -23,9 +23,8 @@
     "url": "https://github.com/freaktechnik/notification-sounds/issues"
   },
   "devDependencies": {
+    "@freaktechnik/eslint-config-extension": "^5.1.3",
     "eslint": "^4.3.0",
-    "eslint-plugin-compat": "^2.0.1",
-    "eslint-plugin-freaktechnik": "^5.0.0",
     "stylelint": "^8.1.1",
     "stylelint-config-standard": "^17.0.0",
     "stylelint-no-unsupported-browser-features": "^1.0.0",
