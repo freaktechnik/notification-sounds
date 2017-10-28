@@ -116,10 +116,22 @@ const SOURCES = {
                         windowTypes: [ 'normal' ]
                     });
                     if(!lastWindow.focused || lastWindow.state === "minimized") {
-                        const downloadSound = await browser.storage.local.get({
+                        const { download: downloadSound } = await browser.storage.local.get({
                             download: true
                         });
                         if(downloadSound) {
+                            NotificationListener.makeSound();
+                        }
+                    }
+                    else {
+                        const {
+                            download: downloadSound,
+                            downloadAlways
+                        } = await browser.storage.local.get({
+                            download: true,
+                            downloadAlways: false
+                        });
+                        if(downloadSound && downloadAlways) {
                             NotificationListener.makeSound();
                         }
                     }

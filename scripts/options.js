@@ -78,28 +78,6 @@ const stores = {
                 }
             });
         }
-    },
-    Download = {
-        STORAGE_KEY: "download",
-        DEFAULT: true,
-        checkbox: null,
-        init() {
-            this.checkbox = document.getElementById("download");
-
-            this.checkbox.addEventListener("change", () => {
-                browser.storage.local.set({
-                    [this.STORAGE_KEY]: this.checkbox.checked
-                });
-            });
-
-            browser.storage.local.get({
-                [this.STORAGE_KEY]: this.DEFAULT
-            })
-                .then(({ [this.STORAGE_KEY]: value }) => {
-                    this.checkbox.checked = value;
-                })
-                .catch(console.error);
-        }
     };
 
 class FilterList {
@@ -283,11 +261,54 @@ class HostFilterList extends FilterList {
     }
 }
 
+class Checkbox {
+    constructor(storageKey, node, defaultValue = true) {
+        this.storageKey = storageKey;
+        this.checkbox = node;
+        this.defaultValue = defaultValue;
+        this.changeListeners = new Set();
+
+        this.checkbox.addEventListener("change", () => {
+            browser.storage.local.set({
+                [this.storageKey]: this.checkbox.checked
+            });
+            for(const listener of this.changeListeners.values()) {
+                listener(this.checkbox.checked);
+            }
+        }, {
+            capture: false,
+            passive: true
+        });
+
+        browser.storage.local.get({
+            [this.storageKey]: this.defaultValue
+        })
+            .then(({ [this.storageKey]: value }) => {
+                this.checkbox.checked = value;
+            })
+            .catch(console.error);
+    }
+
+    addChangeListener(cbk) {
+        this.changeListeners.add(cbk);
+    }
+
+    toggleState(state) {
+        this.checkbox.disabled = !state;
+        this.checkbox.classList.toggle('disabled', !state);
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     Sound.init();
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
-    Download.init();
+    const download = new Checkbox("download", document.getElementById("download")),
+        downloadAlways = new Checkbox("downloadAlways", document.getElementById("downloadalways"), false);
+
+    download.addChangeListener((checked) => {
+        downloadAlways.toggleState(checked);
+    });
 
 
     const datalist = document.getElementById("extensions");
