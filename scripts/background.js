@@ -20,6 +20,7 @@ const SOURCES = {
         },
         init() {
             this.player = this.getPlayer();
+            this.playing = this.player;
             this.loadSound();
 
             browser.storage.onChanged.addListener((changes, areaName) => {
@@ -89,13 +90,19 @@ const SOURCES = {
             return false;
         },
         makeSound() {
+            if(this.playing !== this.player && !this.playing.paused) {
+                this.playing.pause();
+            }
             this.player.currentTime = 0;
             this.player.play();
+            this.playing = this.player;
         },
         async onNotification(source, sourceSpec) {
             if(await this.shouldMakeSound(source, sourceSpec)) {
                 this.makeSound();
+                return true;
             }
+            return false;
         },
         async shouldPlaySound(source, sourceSpec) {
             if(source === SOURCES.WEBSITE) {
@@ -108,11 +115,15 @@ const SOURCES = {
             }
             return this.shouldMakeSound(source, sourceSpec);
         },
-        async play(source, sourceSpec, url) {
+        async onPlay(source, sourceSpec, url) {
             if(await this.shouldPlaySound(source, sourceSpec)) {
+                if(this.playing && !this.playing.paused) {
+                    this.playing.pause();
+                }
                 const player = this.getPlayer();
                 player.src = url;
                 player.play();
+                this.playing = player;
             }
         }
     },
@@ -167,10 +178,10 @@ const SOURCES = {
 
 browser.runtime.onMessage.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC && isWebsite(sender)) {
-        return NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url), message);
+        NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url), message);
     }
     else if(typeof message === "object" && message.command === "play" && isWebsite(sender)) {
-        return NotificationListener.play(SOURCES.WEBSITE, extractHost(sender.url), message.url);
+        NotificationListener.onPlay(SOURCES.WEBSITE, extractHost(sender.url), message.url);
     }
     else if(message === "preview-sound") {
         NotificationListener.makeSound();
