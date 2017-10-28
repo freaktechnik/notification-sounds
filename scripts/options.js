@@ -57,7 +57,7 @@ const stores = {
         },
         async selectFile() {
             if(this.input.files.length) {
-                const file = this.input.files.shift(),
+                const [ file ] = this.input.files,
                     storedFile = new StoredBlob(file.name);
                 this.resetButton.disabled = false;
                 this.resetButton.classList.remove("disabled");

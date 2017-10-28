@@ -3,6 +3,7 @@
 
 //TODO tab context menu to quickly whitelist/unwhitelist host (requires the before show listener to prepare)
 //TODO sync?
+//TODO catch ServiceWorker scoped showNotification calls.
 
 const SOURCES = {
         WEBSITE: 0,
