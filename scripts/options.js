@@ -75,6 +75,7 @@ const stores = {
                 if(soundName.length) {
                     this.output.value = soundName;
                     this.resetButton.disabled = false;
+                    this.resetButton.classList.remove("disabled");
                 }
             });
         }

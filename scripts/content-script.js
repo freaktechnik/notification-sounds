@@ -20,32 +20,30 @@ window.addEventListener(EVENT, ({ detail }) => {
 // (and does) go wrong, that I eventually gave up and this works very well and
 // seems secure-enough.
 //TODO handle renotify & tag
-//TODO share code?
 
 /* eslint-disable no-eval */
-// Override the Notification class.
-window.eval(`window.Notification = class extends Notification {
-    constructor(title, options) {
-        super(title, options);
+window.eval(`{
+    const dispatchNotificationEvent = (options) => {
         if(Notification.permission === "granted" && (!options || !options.silent)) {
             const e = new CustomEvent('${EVENT}', {
                 detail: options ? options.sound : false
             });
             window.dispatchEvent(e);
         }
-    }
-};`);
+    };
 
-// Override service worker showNotification in the website scope.
-window.eval(`{
+    // Override Notification constructor.
+    window.Notification = class extends Notification {
+        constructor(...args) {
+            super(...args);
+            dispatchNotificationEvent(args[1]);
+        }
+    };
+
+    // Override serviceWorker notifications in website scope.
     const original = ServiceWorkerRegistration.prototype.showNotification;
     ServiceWorkerRegistration.prototype.showNotification = function(...args) {
-        if(Notification.permission === "granted") {
-            const e = new CustomEvent('${EVENT}', {
-                detail: false
-            });
-            window.dispatchEvent(e);
-        }
+        dispatchNotificationEvent(args[1]);
         return original.apply(this, args);
     };
 }`);
