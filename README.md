@@ -2,7 +2,13 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/freaktechnik/notification-sounds.svg)](https://greenkeeper.io/) [![Build Status](https://travis-ci.org/freaktechnik/notification-sounds.svg?branch=master)](https://travis-ci.org/freaktechnik/notification-sounds)
 
-Makes a sound when a notification is shown
+Makes a sound when a notification is shown.
+
+Overrides Website's `Notification` constructor and `showNotification` method on
+ServiceWorker registrations to get notified when they're called. Other extensions
+can also let this extension know that they've shown a notification.
+
+Currently can not play a sound when a ServiceWorker shows a notification.
 
 ## Extension integration
 For extensions to trigger a sound when creating a notification, they have to send the following message:
