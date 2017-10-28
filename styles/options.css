@@ -43,3 +43,7 @@ label[for="currentSound"] {
 footer {
     font-size: 0.8em;
 }
+
+.subsection {
+    margin-left: 24px;
+}

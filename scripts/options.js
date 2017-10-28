@@ -305,6 +305,7 @@ window.addEventListener("DOMContentLoaded", () => {
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
     const download = new Checkbox("download", document.getElementById("download")),
         downloadAlways = new Checkbox("downloadAlways", document.getElementById("downloadalways"), false);
+    new Checkbox("websiteSound", document.getElementById("websitesound"), true);
 
     download.addChangeListener((checked) => {
         downloadAlways.toggleState(checked);

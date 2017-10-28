@@ -12,10 +12,14 @@ const SOURCES = {
     NOTIFICATION_TOPIC = "new-notification",
     NotificationListener = {
         DEFAULT_SOUND: browser.runtime.getURL('pop.flac'),
+        getPlayer() {
+            const player = new Audio();
+            player.autoplay = false;
+            player.preload = true;
+            return player;
+        },
         init() {
-            this.player = new Audio();
-            this.player.autoplay = false;
-            this.player.preload = true;
+            this.player = this.getPlayer();
             this.loadSound();
 
             browser.storage.onChanged.addListener((changes, areaName) => {
@@ -92,6 +96,24 @@ const SOURCES = {
             if(await this.shouldMakeSound(source, sourceSpec)) {
                 this.makeSound();
             }
+        },
+        async shouldPlaySound(source, sourceSpec) {
+            if(source === SOURCES.WEBSITE) {
+                const { websiteSound } = await browser.storage.local.get({
+                    websiteSound: true
+                });
+                if(!websiteSound) {
+                    return false;
+                }
+            }
+            return this.shouldMakeSound(source, sourceSpec);
+        },
+        async play(source, sourceSpec, url) {
+            if(await this.shouldPlaySound(source, sourceSpec)) {
+                const player = this.getPlayer();
+                player.src = url;
+                player.play();
+            }
         }
     },
     extractHost = (url) => {
@@ -104,7 +126,7 @@ const SOURCES = {
             this.recents.add(id);
         },
         get() {
-            return Array.from(this.recents);
+            return Array.from(this.recents.values());
         }
     },
     DownloadListener = {
@@ -138,11 +160,17 @@ const SOURCES = {
                 }
             });
         }
+    },
+    isWebsite = (sender) => {
+        return sender.url.startsWith("http");
     };
 
 browser.runtime.onMessage.addListener((message, sender) => {
-    if(message === NOTIFICATION_TOPIC && sender.url.startsWith("http")) {
-        return NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url));
+    if(message === NOTIFICATION_TOPIC && isWebsite(sender)) {
+        return NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url), message);
+    }
+    else if(typeof message === "object" && message.command === "play" && isWebsite(sender)) {
+        return NotificationListener.play(SOURCES.WEBSITE, extractHost(sender.url), message.url);
     }
     else if(message === "preview-sound") {
         NotificationListener.makeSound();

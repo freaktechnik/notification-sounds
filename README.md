@@ -10,6 +10,8 @@ can also let this extension know that they've shown a notification.
 
 Currently can not play a sound when a ServiceWorker shows a notification.
 
+Supports the `silent` and `sound` option on the `Notification` constructor.
+
 ## Extension integration
 For extensions to trigger a sound when creating a notification, they have to send the following message:
 ```js

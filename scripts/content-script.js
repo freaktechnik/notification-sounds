@@ -1,7 +1,15 @@
 const EVENT = "we-ns-notificationshown";
 window.addEventListener(EVENT, ({ detail }) => {
-    if(!detail && Notification.permission === "granted") {
-        browser.runtime.sendMessage("new-notification");
+    if(Notification.permission === "granted") {
+        if(!detail) {
+            browser.runtime.sendMessage("new-notification");
+        }
+        else {
+            browser.runtime.sendMessage({
+                command: 'play',
+                url: new URL(detail, window.location).toString()
+            });
+        }
     }
 }, {
     passive: true,
@@ -19,9 +27,9 @@ window.addEventListener(EVENT, ({ detail }) => {
 window.eval(`window.Notification = class extends Notification {
     constructor(title, options) {
         super(title, options);
-        if(Notification.permission === "granted") {
+        if(Notification.permission === "granted" && (!options || !options.silent)) {
             const e = new CustomEvent('${EVENT}', {
-                detail: options ? options.silent: false
+                detail: options ? options.sound : false
             });
             window.dispatchEvent(e);
         }
@@ -30,7 +38,7 @@ window.eval(`window.Notification = class extends Notification {
 
 // Override service worker showNotification in the website scope.
 window.eval(`{
-    let original = ServiceWorkerRegistration.prototype.showNotification;
+    const original = ServiceWorkerRegistration.prototype.showNotification;
     ServiceWorkerRegistration.prototype.showNotification = function(...args) {
         if(Notification.permission === "granted") {
             const e = new CustomEvent('${EVENT}', {
