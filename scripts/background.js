@@ -172,9 +172,7 @@ const SOURCES = {
             });
         }
     },
-    isWebsite = (sender) => {
-        return sender.url.startsWith("http");
-    };
+    isWebsite = (sender) => sender.url.startsWith("http");
 
 browser.runtime.onMessage.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC && isWebsite(sender)) {

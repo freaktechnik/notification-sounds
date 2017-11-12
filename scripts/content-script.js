@@ -1,50 +1,60 @@
-const EVENT = "we-ns-notificationshown";
-window.addEventListener(EVENT, ({ detail }) => {
-    if(Notification.permission === "granted") {
-        if(!detail) {
-            browser.runtime.sendMessage("new-notification");
-        }
-        else {
-            browser.runtime.sendMessage({
-                command: 'play',
-                url: new URL(detail, window.location).toString()
-            });
-        }
-    }
-}, {
-    passive: true,
-    capture: true
-});
-
-// I tried doing this the XRay wrappers way, but there's just so much that can
-// (and does) go wrong, that I eventually gave up and this works very well and
-// seems secure-enough.
+"use strict";
+/* global cloneInto, exportFunction */
 //TODO handle renotify & tag
 
-/* eslint-disable no-eval */
-window.eval(`{
-    const dispatchNotificationEvent = (options) => {
+const OPTIONS_INDEX = 1,
+    dispatchNotificationEvent = (options) => {
         if(Notification.permission === "granted" && (!options || !options.silent)) {
-            const e = new CustomEvent('${EVENT}', {
-                detail: options ? options.sound : false
-            });
-            window.dispatchEvent(e);
+            if(!options || !options.sound) {
+                browser.runtime.sendMessage("new-notification");
+            }
+            else {
+                browser.runtime.sendMessage({
+                    command: 'play',
+                    url: new URL(options.sound, window.location).toString()
+                });
+            }
         }
+    },
+    OriginalNotification = window.wrappedJSObject.Notification,
+    /**
+     * @class
+     * @extends {Notification}
+     * @param {?} args - Arguments.
+     * @returns {Notification} Instance.
+     */
+    ModifiedNotification = function(...args) {
+        dispatchNotificationEvent(args[OPTIONS_INDEX]);
+        return new OriginalNotification(...args);
+    },
+    descriptor = Object.getOwnPropertyDescriptors(OriginalNotification);
+
+delete descriptor.prototype;
+
+// Replace original Notification constructor with the version that plays sounds.
+window.wrappedJSObject.Notification = exportFunction(ModifiedNotification, window, {
+    allowCrossOriginArguments: true
+});
+// Ensure the prototype is correct, inheriting from the original prototype
+window.wrappedJSObject.Notification.prototype = cloneInto({}, window);
+window.wrappedJSObject.Notification.prototype.constructor = window.wrappedJSObject.Notification;
+Object.setPrototypeOf(window.wrappedJSObject.Notification.prototype, OriginalNotification.prototype);
+// Set static propertties on our constructor
+Object.defineProperties(window.wrappedJSObject.Notification, descriptor);
+Object.setPrototypeOf(window.wrappedJSObject.Notification, Object.getPrototypeOf(OriginalNotification));
+
+// Override serviceWorker notifications in website scope.
+const original = window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification,
+    /**
+     * @param {?} args - Arguments.
+     * @this {ServiceWorkerRegistration}
+     * @returns {Promise}
+     */
+    replacement = function(...args) {
+        dispatchNotificationEvent(args[OPTIONS_INDEX]);
+        return original.call(this, ...args);
     };
 
-    // Override Notification constructor.
-    window.Notification = class extends Notification {
-        constructor(...args) {
-            super(...args);
-            dispatchNotificationEvent(args[1]);
-        }
-    };
-
-    // Override serviceWorker notifications in website scope.
-    const original = ServiceWorkerRegistration.prototype.showNotification;
-    ServiceWorkerRegistration.prototype.showNotification = function(...args) {
-        dispatchNotificationEvent(args[1]);
-        return original.apply(this, args);
-    };
-}`);
-/* eslint-enable no-eval */
+window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification = exportFunction(replacement, window, {
+    allowCrossOriginArguments: true
+});
