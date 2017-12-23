@@ -12,6 +12,10 @@ Currently can not play a sound when a ServiceWorker shows a notification.
 
 Supports the `silent` and `sound` option on the `Notification` constructor.
 
+## Official Download
+
+[![addons.mozilla.org/](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_2.png)](https://addons.mozilla.org/firefox/addon/notification-sound/?src=external-gh-readme)
+
 ## Extension integration
 For extensions to trigger a sound when creating a notification, they have to send the following message:
 ```js
