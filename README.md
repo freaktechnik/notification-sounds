@@ -32,6 +32,9 @@ ServiceWorker tests don't work, since JSFiddle has not ServiceWorker.
 
 [JSFiddle Notification Tester](https://jsfiddle.net/y5gj9tj1/6/)
 
+## Support and FAQ
+https://discourse.mozilla.org/t/support-notification-sound/23758
+
 ## License
 The code that makes up this project is licensed under the MPL-2.0
 
