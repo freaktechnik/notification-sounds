@@ -62,7 +62,7 @@ const original = window.wrappedJSObject.ServiceWorkerRegistration.prototype.show
      */
     replacement = function(...args) {
         dispatchNotificationEvent(args.length > OPTIONS_INDEX ? args[OPTIONS_INDEX] : undefined);
-        return original.call(this, ...args);
+        return Reflect.apply(original, this, args);
     };
 
 window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification = exportFunction(replacement, window, {
