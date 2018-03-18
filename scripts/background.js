@@ -30,6 +30,11 @@ const SOURCES = {
                 }
             });
         },
+        async loadFile(soundName) {
+            const storedFile = new StoredBlob(soundName),
+                file = await storedFile.get();
+            return URL.createObjectURL(file);
+        },
         async loadSound() {
             const { soundName } = await browser.storage.local.get({
                 soundName: ''
@@ -40,8 +45,7 @@ const SOURCES = {
                 URL.revokeObjectURL(oldURL);
             }
             if(soundName.length) {
-                const storedFile = new StoredBlob(soundName),
-                    file = await storedFile.get();
+                const url = await this.loadFile(soundName);
                 this.player.src = URL.createObjectURL(file);
             }
             else {
@@ -135,9 +139,7 @@ const SOURCES = {
         async playFromStorage(prefName) {
             const { [prefName]: soundName } = await browser.storage.local.get(prefName);
             if(soundName) {
-                const storedFile = new StoredBlob(soundName),
-                    file = await storedFile.get(),
-                    url = URL.createObjectURL(file),
+                const url = this.loadFile(soundName),
                     discard = (e) => {
                         let otherEvent = "ended";
                         if(e.type == otherEvent) {
