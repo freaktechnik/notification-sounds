@@ -50,12 +50,11 @@ const SOURCES = {
         async extensionAllowed(id) {
             const {
                 allExtensions, allowedExtensions, blockedExtensions
-            } = await
-                browser.storage.local.get({
-                    allExtensions: true,
-                    allowedExtensions: [],
-                    blockedExtensions: []
-                });
+            } = await browser.storage.local.get({
+                allExtensions: true,
+                allowedExtensions: [],
+                blockedExtensions: []
+            });
             if(allExtensions) {
                 return !blockedExtensions.includes(id);
             }
