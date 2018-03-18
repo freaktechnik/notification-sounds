@@ -188,9 +188,10 @@ const SOURCES = {
                 // Don't show the menu when we can't update the menu item
                 return;
             }
+            const manifest = browser.runtime.getManifest();
             browser.menus.create({
                 contexts: [ "tab" ],
-                documentUrlPatterns: [ "*://*/*" ],
+                documentUrlPatterns: manifest.content_scripts[0].matches,
                 id: this.MENU_ITEM,
                 title: this.disabledLabel,
                 enabled: false,
