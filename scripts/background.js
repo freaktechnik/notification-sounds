@@ -118,16 +118,52 @@ const SOURCES = {
             }
             return this.shouldMakeSound(source, sourceSpec, sourceMuted);
         },
+        play(url) {
+            if(this.playing && !this.playing.paused) {
+                this.playing.pause();
+            }
+            const player = this.getPlayer();
+            player.src = url;
+            player.play();
+            this.playing = player;
+        },
         async onPlay(source, sourceSpec, url, sourceMuted = false) {
             if(await this.shouldPlaySound(source, sourceSpec, sourceMuted)) {
-                if(this.playing && !this.playing.paused) {
-                    this.playing.pause();
-                }
-                const player = this.getPlayer();
-                player.src = url;
-                player.play();
-                this.playing = player;
+                this.play(url);
             }
+        },
+        async playFromStorage(prefName) {
+            const { [prefName]: soundName } = await browser.storage.local.get(prefName);
+            if(soundName) {
+                const storedFile = new StoredBlob(soundName),
+                    file = await storedFile.get(),
+                    url = URL.createObjectURL(file),
+                    discard = (e) => {
+                        let otherEvent = "ended";
+                        if(e.type == otherEvent) {
+                            otherEvent = "pause";
+                        }
+                        this.playing.removeEventListener(otherEvent, discard);
+                        URL.revokeObjectURL(url);
+                        this.playing = null;
+                    };
+
+                this.play(url);
+                this.playing.addEventListener("ended", discard, {
+                    once: true,
+                    passive: true
+                });
+                this.playing.addEventListener("pause", discard, {
+                    once: true,
+                    passive: true
+                });
+            }
+        },
+        async preview(prefName) {
+            if(prefName === 'soundName') {
+                return this.makeSound();
+            }
+            return this.playFromStorage(prefName);
         }
     },
     extractHost = (url) => {
@@ -265,8 +301,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
         NotificationListener.onPlay(SOURCES.WEBSITE, extractHost(sender.url), message.url, sender.tab.mutedInfo && sender.tab.mutedInfo.muted);
     }
     else if(typeof message === "object" && message.command === "preview-sound") {
-        //TODO current player handling won't cut it.
-        NotificationListener.makeSound(message.pref);
+        NotificationListener.preview(message.pref);
     }
     else if(message === "recent-extensions") {
         return Promise.resolve(RecentExtensions.get());

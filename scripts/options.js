@@ -2,6 +2,7 @@
 "use strict";
 
 //TODO nicer look for extensions list. Probably needs some inter-extension communication though :S
+//TODO react to changes from context menu
 
 const stores = {
         extension: {
