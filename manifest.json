@@ -28,7 +28,9 @@
     "permissions": [
         "storage",
         "management",
-        "downloads"
+        "downloads",
+        "menus",
+        "tabs"
     ],
     "content_scripts": [
         {

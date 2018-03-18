@@ -79,7 +79,8 @@ const stores = {
                 }
             });
         }
-    };
+    },
+    WWW_PREFIX = "www.";
 
 class FilterList {
     constructor(datastore, anchor) {
@@ -254,7 +255,6 @@ class HostFilterList extends FilterList {
         if(value.search(/[a-zA-Z0-9-.]+\.[a-z][a-z]+/) === NO_RESULT) {
             throw new Error();
         }
-        const WWW_PREFIX = "www.";
         if(value.startsWith(WWW_PREFIX)) {
             return value.substr(WWW_PREFIX.length);
         }

@@ -10,6 +10,7 @@ const SOURCES = {
         EXTENSION: 1
     },
     NOTIFICATION_TOPIC = "new-notification",
+    WWW_PREFIX = 'www.',
     NotificationListener = {
         DEFAULT_SOUND: browser.runtime.getURL('pop.flac'),
         getPlayer() {
@@ -62,23 +63,19 @@ const SOURCES = {
             return allowedExtensions.includes(id);
         },
         async websiteAllowed(host, isMuted = false) {
-            const WWW_PREFIX = "www.",
-                {
-                    allWebsites,
-                    allowedWebsites,
-                    blockedWebsites,
-                    tabMuted
-                } = await browser.storage.local.get({
-                    allWebsites: true,
-                    allowedWebsites: [],
-                    blockedWebsites: [],
-                    tabMuted: true
-                });
+            const {
+                allWebsites,
+                allowedWebsites,
+                blockedWebsites,
+                tabMuted
+            } = await browser.storage.local.get({
+                allWebsites: true,
+                allowedWebsites: [],
+                blockedWebsites: [],
+                tabMuted: true
+            });
             if(tabMuted && isMuted) {
                 return false;
-            }
-            if(host.startsWith(WWW_PREFIX)) {
-                host = host.substr(WWW_PREFIX.length);
             }
             if(allWebsites) {
                 return !blockedWebsites.includes(host);
@@ -135,7 +132,11 @@ const SOURCES = {
     },
     extractHost = (url) => {
         const urlObj = new URL(url);
-        return urlObj.hostname;
+        let host = urlObj.hostname;
+        if(host.startsWith(WWW_PREFIX)) {
+            host = host.substr(WWW_PREFIX.length);
+        }
+        return host;
     },
     RecentExtensions = {
         recents: new Set(),
@@ -178,6 +179,80 @@ const SOURCES = {
             });
         }
     },
+    TabMenu = {
+        MENU_ITEM: 'toggle-ignore',
+        currentId: 0,
+        disabledLabel: browser.i18n.getMessage('extensionName'),
+        init() {
+            if(!browser.menus.hasOwnProperty('onShown') || !browser.menus.hasOwnProperty('onHidden')) {
+                // Don't show the menu when we can't update the menu item
+                return;
+            }
+            browser.menus.create({
+                contexts: [ "tab" ],
+                documentUrlPatterns: [ "*://*/*" ],
+                id: this.MENU_ITEM,
+                title: this.disabledLabel,
+                enabled: false,
+                type: 'checkbox'
+            });
+            browser.menus.onShown.addListener((context, tab) => this.updateItem(context, tab).catch(console.error));
+            browser.menus.onHidden.addListener(() => this.closeMenu());
+            browser.menus.onClicked.addListener((context, tab) => this.handleClick(context, tab).catch(console.error));
+        },
+        async updateItem(context, tab) {
+            const menuId = this.currentId;
+            if(context.menuIds.includes(this.MENU_ITEM)) {
+                const updatedSpec = {
+                    enabled: true
+                };
+                const { allWebsites } = await browser.storage.local.get({
+                    allWebsites: true
+                });
+                if(!this.isCurrentMenu(menuId)) {
+                    return;
+                }
+                const host = extractHost(tab.url);
+                updatedSpec.title = browser.i18n.getMessage(allWebsites ? 'ignoreHost' : 'allowHost', host);
+                const canPlaySound = await NotificationListener.websiteAllowed(host, false);
+                if(!this.isCurrentMenu(menuId)) {
+                    return;
+                }
+                updatedSpec.checked = allWebsites ? !canPlaySound : canPlaySound;
+                browser.menus.update(this.MENU_ITEM, updatedSpec);
+                browser.menus.refresh();
+            }
+        },
+        closeMenu() {
+            ++this.currentId;
+        },
+        isCurrentMenu(menuId) {
+            return menuId === this.currentId;
+        },
+        async handleClick(context, tab) {
+            const host = extractHost(tab.url),
+                {
+                    allWebsites,
+                    allowedWebsites,
+                    blockedWebsites
+                } = await browser.storage.local.get({
+                    allWebsites: true,
+                    allowedWebsites: [],
+                    blockedWebsites: []
+                }),
+                list = allWebsites ? blockedWebsites : allowedWebsites,
+                updateProp = allWebsites ? 'blockedWebsites' : 'allowedWebsites';
+            if(list.includes(host)) {
+                list.splice(list.indexOf(host), 1);
+            }
+            else {
+                list.push(host);
+            }
+            return browser.storage.local.set({
+                [updateProp]: list
+            });
+        }
+    },
     isWebsite = (sender) => sender.url.startsWith("http");
 
 browser.runtime.onMessage.addListener((message, sender) => {
@@ -203,3 +278,4 @@ browser.runtime.onMessageExternal.addListener((message, sender) => {
 
 NotificationListener.init();
 DownloadListener.init();
+TabMenu.init();
