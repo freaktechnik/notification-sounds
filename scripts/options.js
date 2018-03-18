@@ -2,8 +2,6 @@
 "use strict";
 
 //TODO nicer look for extensions list. Probably needs some inter-extension communication though :S
-//TODO provide some default extension IDs as autocomplete or similar?
-//TODO  -> suggest extensions that have shown notifications this session (use-case: person wants to block an extension)?
 
 const stores = {
         extension: {
@@ -15,72 +13,76 @@ const stores = {
             allowed: "allowedWebsites"
         }
     },
-    Sound = {
-        defaultSound: undefined,
-        resetButton: undefined,
-        input: undefined,
-        output: undefined,
-        init() {
-            this.resetButton = document.getElementById("resetSound");
-            this.input = document.getElementById("sound");
-            this.output = document.getElementById("currentSound");
-            this.restoreFile();
+    WWW_PREFIX = "www.";
 
-            this.input.addEventListener("input", () => this.selectFile(), {
-                capture: false,
-                passive: true
+class Sound {
+    constructor(prefName, root, defaultSound = 'Default') {
+        this.prefName = prefName;
+        this.root = root;
+        this.resetButton = this.root.querySelector(".resetSound");
+        this.input = this.root.querySelector(".sound");
+        this.output = this.root.querySelector(".currentSound");
+        this.restoreFile();
+
+        this.input.addEventListener("input", () => this.selectFile(), {
+            capture: false,
+            passive: true
+        });
+        this.resetButton.addEventListener("click", () => this.reset(), {
+            capture: false,
+            passive: true
+        });
+        this.root.querySelector(".playSound").addEventListener("click", () => {
+            browser.runtime.sendMessage({
+                command: "preview-sound",
+                pref: this.prefName
             });
-            this.resetButton.addEventListener("click", () => this.reset(), {
-                capture: false,
-                passive: true
-            });
-            document.getElementById("playSound").addEventListener("click", () => {
-                browser.runtime.sendMessage("preview-sound");
-            }, {
-                capture: false,
-                passive: true
-            });
-        },
-        async reset() {
-            this.resetButton.disabled = true;
-            this.resetButton.classList.add("disabled");
-            this.input.value = '';
-            this.output.value = 'Default';
-            const { soundName } = await browser.storage.local.get("soundName");
-            if(soundName) {
-                const storedFile = new StoredBlob(soundName);
-                await storedFile.delete();
-            }
-            return browser.storage.local.set({
-                soundName: ''
-            });
-        },
-        async selectFile() {
-            if(this.input.files.length) {
-                const [ file ] = this.input.files,
-                    storedFile = new StoredBlob(file.name);
-                this.resetButton.disabled = false;
-                this.resetButton.classList.remove("disabled");
-                this.output.value = file.name;
-                await storedFile.save(file);
-                await browser.storage.local.set({
-                    soundName: file.name
-                });
-            }
-        },
-        restoreFile() {
-            return browser.storage.local.get({
-                soundName: ''
-            }).then(({ soundName }) => {
-                if(soundName.length) {
-                    this.output.value = soundName;
-                    this.resetButton.disabled = false;
-                    this.resetButton.classList.remove("disabled");
-                }
+        }, {
+            capture: false,
+            passive: true
+        });
+    }
+
+    async reset() {
+        this.resetButton.disabled = true;
+        this.resetButton.classList.add("disabled");
+        this.input.value = '';
+        this.output.value = this.defaultSound;
+        const { [this.prefName]: soundName } = await browser.storage.local.get(this.prefName);
+        if(soundName) {
+            const storedFile = new StoredBlob(soundName);
+            await storedFile.delete();
+        }
+        return browser.storage.local.set({
+            [this.prefName]: ''
+        });
+    }
+
+    async selectFile() {
+        if(this.input.files.length) {
+            const [ file ] = this.input.files,
+                storedFile = new StoredBlob(this.prefName + file.name);
+            this.resetButton.disabled = false;
+            this.resetButton.classList.remove("disabled");
+            this.output.value = file.name;
+            await storedFile.save(file);
+            await browser.storage.local.set({
+                [this.prefName]: file.name
             });
         }
-    },
-    WWW_PREFIX = "www.";
+    }
+
+    async restoreFile() {
+        const { [this.prefName]: soundName } = await browser.storage.local.get({
+            [this.prefName]: ''
+        });
+        if(soundName.length) {
+            this.output.value = soundName;
+            this.resetButton.disabled = false;
+            this.resetButton.classList.remove("disabled");
+        }
+    }
+}
 
 class FilterList {
     constructor(datastore, anchor) {
@@ -301,7 +303,7 @@ class Checkbox {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    Sound.init();
+    new Sound('soundName', document.getElementById('sound-selection'));
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
     const download = new Checkbox("download", document.getElementById("download")),

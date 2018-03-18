@@ -264,8 +264,9 @@ browser.runtime.onMessage.addListener((message, sender) => {
     else if(typeof message === "object" && message.command === "play" && isWebsite(sender)) {
         NotificationListener.onPlay(SOURCES.WEBSITE, extractHost(sender.url), message.url, sender.tab.mutedInfo && sender.tab.mutedInfo.muted);
     }
-    else if(message === "preview-sound") {
-        NotificationListener.makeSound();
+    else if(typeof message === "object" && message.command === "preview-sound") {
+        //TODO current player handling won't cut it.
+        NotificationListener.makeSound(message.pref);
     }
     else if(message === "recent-extensions") {
         return Promise.resolve(RecentExtensions.get());
