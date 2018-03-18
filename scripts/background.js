@@ -46,7 +46,7 @@ const SOURCES = {
             }
             if(soundName.length) {
                 const url = await this.loadFile(soundName);
-                this.player.src = URL.createObjectURL(file);
+                this.player.src = url;
             }
             else {
                 this.player.src = this.DEFAULT_SOUND;

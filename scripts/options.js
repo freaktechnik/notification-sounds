@@ -20,6 +20,7 @@ class Sound {
     constructor(prefName, root, defaultSound = 'Default') {
         this.prefName = prefName;
         this.root = root;
+        this.defaultSound = defaultSound;
         this.resetButton = this.root.querySelector(".resetSound");
         this.input = this.root.querySelector(".sound");
         this.output = this.root.querySelector(".currentSound");
