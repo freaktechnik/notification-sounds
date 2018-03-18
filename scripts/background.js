@@ -13,6 +13,7 @@ const SOURCES = {
     WWW_PREFIX = 'www.',
     NotificationListener = {
         DEFAULT_SOUND: browser.runtime.getURL('pop.flac'),
+        PREF_NAME: 'soundName',
         getPlayer() {
             const player = new Audio();
             player.autoplay = false;
@@ -22,13 +23,32 @@ const SOURCES = {
         init() {
             this.player = this.getPlayer();
             this.playing = this.player;
+            this.currentPref = this.PREF_NAME;
             this.loadSound();
+            this.setPlayerVolume();
 
             browser.storage.onChanged.addListener((changes, areaName) => {
-                if(areaName === "local" && "soundName" in changes) {
-                    this.loadSound();
+                if(areaName === "local") {
+                    if(this.PREF_NAME in changes) {
+                        this.loadSound();
+                    }
+                    if(`${this.PREF_NAME}-volume` in changes) {
+                        this.player.volume = changes[`${this.PREF_NAME}-volume`].newValue;
+                        if(this.currentPref === this.PREF_NAME) {
+                            this.playing.volume = this.player.volume;
+                        }
+                    }
+                    if(this.currentPref !== this.PREF_NAME && `${this.currentPref}-volume` in changes) {
+                        this.playing.volume = changes[`${this.currentPref}-volume`].newValue;
+                    }
                 }
             });
+        },
+        async setPlayerVolume(prefName = this.PREF_NAME, player = this.player) {
+            const data = await browser.storage.local.get({
+                [`${prefName}-volume`]: 1.0
+            });
+            player.volume = data[`${prefName}-volume`];
         },
         async loadFile(soundName) {
             const storedFile = new StoredBlob(soundName),
@@ -36,8 +56,8 @@ const SOURCES = {
             return URL.createObjectURL(file);
         },
         async loadSound() {
-            const { soundName } = await browser.storage.local.get({
-                soundName: ''
+            const { [this.PREF_NAME]: soundName } = await browser.storage.local.get({
+                [this.PREF_NAME]: ''
             });
             if(this.player.src && this.player.src !== this.DEFAULT_SOUND) {
                 const oldURL = this.player.src;
@@ -100,12 +120,25 @@ const SOURCES = {
             if(this.playing !== this.player && !this.playing.paused) {
                 this.playing.pause();
             }
+            this.currentPref = this.PREF_NAME;
             this.player.currentTime = 0;
             this.player.play();
             this.playing = this.player;
         },
+        async getPrefForHost(sourceSpec) {
+            // For now we only have one pref per host, but hopefully not forever.
+            btoa(sourceSpec);
+            return this.PREF_NAME;
+        },
         async onNotification(source, sourceSpec, sourceMuted = false) {
             if(await this.shouldMakeSound(source, sourceSpec, sourceMuted)) {
+                if(source === SOURCES.WEBSITE) {
+                    const prefName = await this.getPrefForHost(sourceSpec);
+                    if(prefName !== this.PREF_NAME) {
+                        await this.playFromStorage(prefName);
+                        return true;
+                    }
+                }
                 this.makeSound();
                 return true;
             }
@@ -122,18 +155,24 @@ const SOURCES = {
             }
             return this.shouldMakeSound(source, sourceSpec, sourceMuted);
         },
-        play(url) {
+        play(url, player = this.getPlayer()) {
             if(this.playing && !this.playing.paused) {
                 this.playing.pause();
             }
-            const player = this.getPlayer();
             player.src = url;
             player.play();
             this.playing = player;
         },
+        preparePlay(url, prefName) {
+            const player = this.getPlayer();
+            this.currentPref = prefName;
+            this.setPlayerVolume(prefName, player);
+            this.play(url, player);
+        },
         async onPlay(source, sourceSpec, url, sourceMuted = false) {
             if(await this.shouldPlaySound(source, sourceSpec, sourceMuted)) {
-                this.play(url);
+                const prefName = await this.getPrefForHost(sourceSpec);
+                this.preparePlay(url, prefName);
             }
         },
         async playFromStorage(prefName) {
@@ -149,8 +188,7 @@ const SOURCES = {
                         URL.revokeObjectURL(url);
                         this.playing = null;
                     };
-
-                this.play(url);
+                this.preparePlay(url, prefName);
                 this.playing.addEventListener("ended", discard, {
                     once: true,
                     passive: true
@@ -162,7 +200,7 @@ const SOURCES = {
             }
         },
         async preview(prefName) {
-            if(prefName === 'soundName') {
+            if(prefName === this.PREF_NAME) {
                 return this.makeSound();
             }
             return this.playFromStorage(prefName);

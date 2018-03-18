@@ -24,6 +24,7 @@ class Sound {
         this.resetButton = this.root.querySelector(".resetSound");
         this.input = this.root.querySelector(".sound");
         this.output = this.root.querySelector(".currentSound");
+        this.volume = this.root.querySelector(".volume");
         this.restoreFile();
 
         this.input.addEventListener("input", () => this.selectFile(), {
@@ -43,6 +44,14 @@ class Sound {
             capture: false,
             passive: true
         });
+        this.volume.addEventListener("input", () => this.saveVolume(), {
+            capture: false,
+            passive: true
+        });
+    }
+
+    get volumePref() {
+        return `${this.prefName}-volume`;
     }
 
     async reset() {
@@ -74,15 +83,26 @@ class Sound {
         }
     }
 
+    saveVolume() {
+        return browser.storage.local.set({
+            [this.volumePref]: this.volume.valueAsNumber
+        });
+    }
+
     async restoreFile() {
-        const { [this.prefName]: soundName } = await browser.storage.local.get({
-            [this.prefName]: ''
+        const {
+            [this.prefName]: soundName,
+            [this.volumePref]: volume
+        } = await browser.storage.local.get({
+            [this.prefName]: '',
+            [this.volumePref]: 1.0
         });
         if(soundName.length) {
             this.output.value = soundName;
             this.resetButton.disabled = false;
             this.resetButton.classList.remove("disabled");
         }
+        this.volume.value = volume;
     }
 }
 
@@ -189,8 +209,8 @@ class FilterList {
 }
 
 class Filter {
-    constructor(stores, section, listType = FilterList) {
-        this.stores = stores;
+    constructor(prefStores, section, listType = FilterList) {
+        this.stores = prefStores;
         this.section = section;
         this.listType = listType;
 
@@ -305,7 +325,7 @@ class Checkbox {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    new Sound('soundName', document.getElementById('sound-selection'));
+    new Sound('soundName', document.getElementById('sound-section'));
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
     const download = new Checkbox("download", document.getElementById("download")),
