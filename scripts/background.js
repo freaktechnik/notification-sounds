@@ -181,6 +181,7 @@ const SOURCES = {
     },
     TabMenu = {
         MENU_ITEM: 'toggle-ignore',
+        ONE_ITEM: 1,
         currentId: 0,
         disabledLabel: browser.i18n.getMessage('extensionName'),
         init() {
@@ -188,10 +189,10 @@ const SOURCES = {
                 // Don't show the menu when we can't update the menu item
                 return;
             }
-            const manifest = browser.runtime.getManifest();
+            const { content_scripts: [ contentScript ] } = browser.runtime.getManifest();
             browser.menus.create({
                 contexts: [ "tab" ],
-                documentUrlPatterns: manifest.content_scripts[0].matches,
+                documentUrlPatterns: contentScript.matches,
                 id: this.MENU_ITEM,
                 title: this.disabledLabel,
                 enabled: false,
@@ -244,7 +245,7 @@ const SOURCES = {
                 list = allWebsites ? blockedWebsites : allowedWebsites,
                 updateProp = allWebsites ? 'blockedWebsites' : 'allowedWebsites';
             if(list.includes(host)) {
-                list.splice(list.indexOf(host), 1);
+                list.splice(list.indexOf(host), this.ONE_ITEM);
             }
             else {
                 list.push(host);
