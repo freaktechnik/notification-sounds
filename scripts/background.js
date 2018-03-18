@@ -61,15 +61,22 @@ const SOURCES = {
 
             return allowedExtensions.includes(id);
         },
-        async websiteAllowed(host) {
+        async websiteAllowed(host, isMuted = false) {
             const WWW_PREFIX = "www.",
                 {
-                    allWebsites, allowedWebsites, blockedWebsites
+                    allWebsites,
+                    allowedWebsites,
+                    blockedWebsites,
+                    tabMuted
                 } = await browser.storage.local.get({
                     allWebsites: true,
                     allowedWebsites: [],
-                    blockedWebsites: []
+                    blockedWebsites: [],
+                    tabMuted: true
                 });
+            if(tabMuted && isMuted) {
+                return false;
+            }
             if(host.startsWith(WWW_PREFIX)) {
                 host = host.substr(WWW_PREFIX.length);
             }
@@ -79,12 +86,12 @@ const SOURCES = {
 
             return allowedWebsites.includes(host);
         },
-        shouldMakeSound(source, sourceSpec) {
+        shouldMakeSound(source, sourceSpec, sourceMuted = false) {
             if(source === SOURCES.EXTENSION) {
                 return this.extensionAllowed(sourceSpec);
             }
             else if(source === SOURCES.WEBSITE) {
-                return this.websiteAllowed(sourceSpec);
+                return this.websiteAllowed(sourceSpec, sourceMuted);
             }
             return false;
         },
@@ -96,14 +103,14 @@ const SOURCES = {
             this.player.play();
             this.playing = this.player;
         },
-        async onNotification(source, sourceSpec) {
-            if(await this.shouldMakeSound(source, sourceSpec)) {
+        async onNotification(source, sourceSpec, sourceMuted = false) {
+            if(await this.shouldMakeSound(source, sourceSpec, sourceMuted)) {
                 this.makeSound();
                 return true;
             }
             return false;
         },
-        async shouldPlaySound(source, sourceSpec) {
+        async shouldPlaySound(source, sourceSpec, sourceMuted = false) {
             if(source === SOURCES.WEBSITE) {
                 const { websiteSound } = await browser.storage.local.get({
                     websiteSound: true
@@ -112,10 +119,10 @@ const SOURCES = {
                     return false;
                 }
             }
-            return this.shouldMakeSound(source, sourceSpec);
+            return this.shouldMakeSound(source, sourceSpec, sourceMuted);
         },
-        async onPlay(source, sourceSpec, url) {
-            if(await this.shouldPlaySound(source, sourceSpec)) {
+        async onPlay(source, sourceSpec, url, sourceMuted = false) {
+            if(await this.shouldPlaySound(source, sourceSpec, sourceMuted)) {
                 if(this.playing && !this.playing.paused) {
                     this.playing.pause();
                 }
@@ -175,10 +182,10 @@ const SOURCES = {
 
 browser.runtime.onMessage.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC && isWebsite(sender)) {
-        NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url), message);
+        NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url), sender.tab.mutedInfo && sender.tab.mutedInfo.muted);
     }
     else if(typeof message === "object" && message.command === "play" && isWebsite(sender)) {
-        NotificationListener.onPlay(SOURCES.WEBSITE, extractHost(sender.url), message.url);
+        NotificationListener.onPlay(SOURCES.WEBSITE, extractHost(sender.url), message.url, sender.tab.mutedInfo && sender.tab.mutedInfo.muted);
     }
     else if(message === "preview-sound") {
         NotificationListener.makeSound();

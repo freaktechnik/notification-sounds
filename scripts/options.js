@@ -307,6 +307,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const download = new Checkbox("download", document.getElementById("download")),
         downloadAlways = new Checkbox("downloadAlways", document.getElementById("downloadalways"), false);
     new Checkbox("websiteSound", document.getElementById("websitesound"), true);
+    new Checkbox("tabMuted", document.getElementById("tabmuted"), true);
 
     download.addChangeListener((checked) => {
         downloadAlways.toggleState(checked);
