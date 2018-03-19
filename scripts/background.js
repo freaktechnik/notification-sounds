@@ -127,6 +127,7 @@ const SOURCES = {
         },
         async getPrefForHost(sourceSpec) {
             // For now we only have one pref per host, but hopefully not forever.
+            //TODO even though a page might not have a custom sound, it may have a custom volume!
             btoa(sourceSpec);
             return this.PREF_NAME;
         },

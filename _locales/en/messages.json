@@ -23,5 +23,29 @@
                 "content": "$1"
             }
         }
+    },
+    "currentSound": {
+        "message": "Current sound:"
+    },
+    "defaultSound": {
+        "message": "Default"
+    },
+    "globalSound": {
+        "message": "Global"
+    },
+    "previewSound": {
+        "message": "Preview sound"
+    },
+    "resetSound": {
+        "message": "Reset sound"
+    },
+    "volume": {
+        "message": "Volume:"
+    },
+    "replaceSound": {
+        "message": "Replace sound:"
+    },
+    "customSound": {
+        "message": "Set custom sound"
     }
 }

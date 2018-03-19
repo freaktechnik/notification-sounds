@@ -1,10 +1,17 @@
-#playSound,
+button + button {
+    margin-left: 0.5em;
+}
+
 output {
     margin-right: 0.5em;
 }
 
-label[for="currentSound"] {
+.currentSound-label {
     font-weight: bold;
+}
+
+.currentSound-label > output {
+    font-weight: normal;
 }
 
 .filterlist {
@@ -12,18 +19,18 @@ label[for="currentSound"] {
 }
 
 .filterlist form,
-.filterlist label {
+.filterlist form label {
     display: flex;
     align-items: baseline;
 }
 
-.filterlist label,
+.filterlist form label,
 .filterlist ul > li span {
     flex-grow: 2;
     margin-right: 0.5em;
 }
 
-.filterlist label input {
+.filterlist form label input {
     flex-grow: 2;
     margin-left: 0.5em;
 }
@@ -36,7 +43,19 @@ label[for="currentSound"] {
 
 .filterlist ul > li {
     margin: 0;
+    padding: 0;
+}
+
+.filterlist ul > li details {
     padding: 0.25em 0;
+}
+
+.filterlist ul > li details > summary {
+    list-style-position: outside;
+    margin-left: 1em;
+}
+
+.filterlist ul > li details > summary > div {
     display: flex;
 }
 

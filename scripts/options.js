@@ -14,10 +14,13 @@ const stores = {
             allowed: "allowedWebsites"
         }
     },
-    WWW_PREFIX = "www.";
+    WWW_PREFIX = "www.",
+    FULL_VOLUME = 1.0,
+    GLOBAL_PREF = 'soundName',
+    PREFIX = 'sound-';
 
 class Sound {
-    constructor(prefName, root, defaultSound = 'Default') {
+    constructor(prefName, root, defaultSound = browser.i18n.getMessage('defaultSound')) {
         this.prefName = prefName;
         this.root = root;
         this.defaultSound = defaultSound;
@@ -25,6 +28,7 @@ class Sound {
         this.input = this.root.querySelector(".sound");
         this.output = this.root.querySelector(".currentSound");
         this.volume = this.root.querySelector(".volume");
+        this.preview = this.root.querySelector(".playSound");
         this.restoreFile();
 
         this.input.addEventListener("input", () => this.selectFile(), {
@@ -35,7 +39,7 @@ class Sound {
             capture: false,
             passive: true
         });
-        this.root.querySelector(".playSound").addEventListener("click", () => {
+        this.preview.addEventListener("click", () => {
             browser.runtime.sendMessage({
                 command: "preview-sound",
                 pref: this.prefName
@@ -59,6 +63,10 @@ class Sound {
         this.resetButton.classList.add("disabled");
         this.input.value = '';
         this.output.value = this.defaultSound;
+        if(this.prefName != GLOBAL_PREF) {
+            this.preview.disabled = true;
+            this.preview.classList.add("disabled");
+        }
         const { [this.prefName]: soundName } = await browser.storage.local.get(this.prefName);
         if(soundName) {
             const storedFile = new StoredBlob(soundName);
@@ -75,6 +83,8 @@ class Sound {
                 storedFile = new StoredBlob(this.prefName + file.name);
             this.resetButton.disabled = false;
             this.resetButton.classList.remove("disabled");
+            this.preview.disabled = false;
+            this.preview.classList.remove("disabled");
             this.output.value = file.name;
             await storedFile.save(file);
             await browser.storage.local.set({
@@ -95,18 +105,90 @@ class Sound {
             [this.volumePref]: volume
         } = await browser.storage.local.get({
             [this.prefName]: '',
-            [this.volumePref]: 1.0
+            [this.volumePref]: FULL_VOLUME
         });
         if(soundName.length) {
             this.output.value = soundName;
             this.resetButton.disabled = false;
             this.resetButton.classList.remove("disabled");
+            if(this.prefName != GLOBAL_PREF) {
+                this.preview.disabled = false;
+                this.preview.classList.remove("disabled");
+            }
         }
         this.volume.value = volume;
     }
 }
 
 class FilterList {
+    static buildPlayer(soundName = browser.i18n.getMessage('globalSound'), volumeValue = FULL_VOLUME) {
+        const root = document.createDocumentFragment(),
+            firstP = document.createElement('p'),
+            secondP = document.createElement('p'),
+            currentSoundLabel = document.createElement('label'),
+            currentSound = document.createElement('output'),
+            playSound = document.createElement('button'),
+            resetSound = document.createElement('button'),
+            volumeLabel = document.createElement('label'),
+            volume = document.createElement('input'),
+            soundLabel = document.createElement('label'),
+            sound = document.createElement('input');
+
+        currentSoundLabel.classList.add('browser-style-label');
+        currentSoundLabel.classList.add('currentSound-label');
+        currentSoundLabel.textContent = `${browser.i18n.getMessage('currentSound')} `;
+        currentSound.classList.add('currentSound');
+        currentSound.value = soundName;
+        currentSoundLabel.appendChild(currentSound);
+        firstP.appendChild(currentSoundLabel);
+
+        playSound.textContent = '▶';
+        playSound.classList.add('playSound');
+        playSound.classList.add('browser-style');
+        playSound.classList.add('disabled');
+        playSound.disabled = true;
+        playSound.title = browser.i18n.getMessage('previewSound');
+        firstP.appendChild(playSound);
+
+        resetSound.textContent = '🗙';
+        resetSound.classList.add('resetSound');
+        resetSound.classList.add('browser-style');
+        resetSound.classList.add('disabled');
+        resetSound.disabled = true;
+        resetSound.type = 'reset';
+        resetSound.title = browser.i18n.getMessage('resetSound');
+        firstP.appendChild(resetSound);
+
+        firstP.insertAdjacentText('beforeend', ' ');
+
+        volumeLabel.classList.add('browser-style-label');
+        volumeLabel.textContent = browser.i18n.getMessage('volume');
+
+        volume.type = 'range';
+        volume.classList.add('volume');
+        volume.min = 0;
+        volume.max = 1;
+        volume.step = "any";
+        volume.value = volumeValue;
+
+        volumeLabel.appendChild(volume);
+        firstP.appendChild(volumeLabel);
+
+        soundLabel.classList.add('browser-style-label');
+        soundLabel.textContent = `${browser.i18n.getMessage('replaceSound')} `;
+
+        sound.type = 'file';
+        sound.classList.add('sound');
+        sound.accept = 'audio/*';
+
+        soundLabel.appendChild(sound);
+        secondP.appendChild(soundLabel);
+
+        root.appendChild(firstP);
+        root.appendChild(secondP);
+        return root;
+    }
+
     constructor(datastore, anchor) {
         this.datastore = datastore;
         this.anchor = anchor;
@@ -149,9 +231,26 @@ class FilterList {
 
     async appendItem(value) {
         const root = document.createElement("li"),
-            button = document.createElement("button");
-        root.appendChild(await this.itemContent(value));
+            details = document.createElement("details"),
+            summary = document.createElement("summary"),
+            flexContainer = document.createElement("div"),
+            button = document.createElement("button"),
+            soundButton = document.createElement("button"),
+            soundControls = FilterList.buildPlayer();
+        flexContainer.appendChild(await this.itemContent(value));
         root.dataset.value = value;
+
+        soundButton.textContent = '♬';
+        soundButton.title = browser.i18n.getMessage('customSound');
+        soundButton.classList.add('browser-style');
+        soundButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            details.open = !details.open;
+        }, {
+            capture: false,
+            passive: false
+        });
+        flexContainer.appendChild(soundButton);
 
         button.textContent = "🗙";
         button.title = browser.i18n.getMessage("remove");
@@ -159,9 +258,25 @@ class FilterList {
         button.classList.add("browser-style");
         button.addEventListener("click", () => {
             this.removeItem(value);
+        }, {
+            passive: true,
+            capture: false
         });
 
-        root.appendChild(button);
+        // Lazily initialize the sound settings controller.
+        details.addEventListener('toggle', () => {
+            new Sound(PREFIX + value, details, browser.i18n.getMessage('globalSound'));
+        }, {
+            once: true,
+            passive: true,
+            capture: false
+        });
+
+        flexContainer.appendChild(button);
+        summary.appendChild(flexContainer);
+        details.appendChild(summary);
+        details.appendChild(soundControls);
+        root.appendChild(details);
 
         this.list.appendChild(root);
     }
@@ -325,7 +440,7 @@ class Checkbox {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    new Sound('soundName', document.getElementById('sound-section'));
+    new Sound(GLOBAL_PREF, document.getElementById('sound-section'));
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
     const download = new Checkbox("download", document.getElementById("download")),
