@@ -19,6 +19,8 @@ const stores = {
     GLOBAL_PREF = 'soundName',
     PREFIX = 'sound-';
 
+let globalSound;
+
 class Sound {
     constructor(prefName, root, defaultSound = browser.i18n.getMessage('defaultSound')) {
         this.prefName = prefName;
@@ -105,7 +107,7 @@ class Sound {
             [this.volumePref]: volume
         } = await browser.storage.local.get({
             [this.prefName]: '',
-            [this.volumePref]: FULL_VOLUME
+            [this.volumePref]: this.prefName === GLOBAL_PREF ? FULL_VOLUME : globalSound.volume.valueAsNumber
         });
         if(soundName.length) {
             this.output.value = soundName;
@@ -189,10 +191,11 @@ class FilterList {
         return root;
     }
 
-    constructor(datastore, anchor) {
+    constructor(datastore, anchor, showSoundEditor = false) {
         this.datastore = datastore;
         this.anchor = anchor;
         this.list = this.anchor.querySelector("ul");
+        this.showSoundEditor = showSoundEditor;
 
         browser.storage.local.get({
             [this.datastore]: []
@@ -231,26 +234,36 @@ class FilterList {
 
     async appendItem(value) {
         const root = document.createElement("li"),
-            details = document.createElement("details"),
-            summary = document.createElement("summary"),
-            flexContainer = document.createElement("div"),
-            button = document.createElement("button"),
-            soundButton = document.createElement("button"),
-            soundControls = FilterList.buildPlayer();
-        flexContainer.appendChild(await this.itemContent(value));
+            button = document.createElement("button");
+        let container = root,
+            parent = root;
+        if(this.showSoundEditor) {
+            const details = document.createElement("details"),
+                flexContainer = document.createElement("div");
+
+
+            // Lazily initialize the sound settings controller.
+            details.addEventListener('toggle', () => {
+                new Sound(PREFIX + value, details, browser.i18n.getMessage('globalSound'));
+            }, {
+                once: true,
+                passive: true,
+                capture: false
+            });
+
+            container = flexContainer;
+            parent = details;
+        }
+        container.appendChild(await this.itemContent(value));
         root.dataset.value = value;
 
-        soundButton.textContent = '♬';
-        soundButton.title = browser.i18n.getMessage('customSound');
-        soundButton.classList.add('browser-style');
-        soundButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            details.open = !details.open;
-        }, {
-            capture: false,
-            passive: false
-        });
-        flexContainer.appendChild(soundButton);
+        if(this.showSoundEditor) {
+            const soundButton = document.createElement("button");
+            soundButton.textContent = '♬';
+            soundButton.title = browser.i18n.getMessage('customSound');
+            soundButton.classList.add('browser-style');
+            container.appendChild(soundButton);
+        }
 
         button.textContent = "🗙";
         button.title = browser.i18n.getMessage("remove");
@@ -263,20 +276,21 @@ class FilterList {
             capture: false
         });
 
-        // Lazily initialize the sound settings controller.
-        details.addEventListener('toggle', () => {
-            new Sound(PREFIX + value, details, browser.i18n.getMessage('globalSound'));
-        }, {
-            once: true,
-            passive: true,
-            capture: false
-        });
+        container.appendChild(button);
+        if(!container.isEqualNode(parent)) {
+            parent.appendChild(container);
+        }
 
-        flexContainer.appendChild(button);
-        summary.appendChild(flexContainer);
-        details.appendChild(summary);
-        details.appendChild(soundControls);
-        root.appendChild(details);
+        if(this.showSoundEditor) {
+            const summary = document.createElement("summary"),
+                soundControls = FilterList.buildPlayer();
+            summary.appendChild(container);
+            parent.appendChild(summary);
+            parent.appendChild(soundControls);
+        }
+        if(!parent.isEqualNode(root)) {
+            root.appendChild(parent);
+        }
 
         this.list.appendChild(root);
     }
@@ -361,10 +375,10 @@ class Filter {
         const anchor = this.section.querySelector(".filterlist"),
             ListConstructor = this.listType;
         if(this.all.checked) {
-            this.list = new ListConstructor(this.stores.blocked, anchor);
+            this.list = new ListConstructor(this.stores.blocked, anchor, false);
         }
         else {
-            this.list = new ListConstructor(this.stores.allowed, anchor);
+            this.list = new ListConstructor(this.stores.allowed, anchor, true);
         }
     }
 
@@ -440,7 +454,7 @@ class Checkbox {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    new Sound(GLOBAL_PREF, document.getElementById('sound-section'));
+    globalSound = new Sound(GLOBAL_PREF, document.getElementById('sound-section'));
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
     const download = new Checkbox("download", document.getElementById("download")),

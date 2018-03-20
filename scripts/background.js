@@ -11,6 +11,7 @@ const SOURCES = {
     },
     NOTIFICATION_TOPIC = "new-notification",
     WWW_PREFIX = 'www.',
+    DEFAULT_VOLUME = 1.0,
     NotificationListener = {
         DEFAULT_SOUND: browser.runtime.getURL('pop.flac'),
         PREF_NAME: 'soundName',
@@ -45,10 +46,24 @@ const SOURCES = {
             });
         },
         async setPlayerVolume(prefName = this.PREF_NAME, player = this.player) {
-            const data = await browser.storage.local.get({
-                [`${prefName}-volume`]: 1.0
+            const volumePrefName = `${prefName}-volume`;
+            let { [volumePrefName]: data } = await browser.storage.local.get({
+                [volumePrefName]: false
             });
-            player.volume = data[`${prefName}-volume`];
+            // Fall back to global volume if none is set for the given pref
+            if(data === false && prefName !== this.PREF_NAME) {
+                const defaultVolumePref = `${this.PREF_NAME}-volume`,
+                    { [defaultVolumePref]: defaultData } = await browser.storage.local.get({
+                        [defaultVolumePref]: DEFAULT_VOLUME
+                    });
+                this.currentPref = this.PREF_NAME;
+                data = defaultData;
+            }
+            else if(data === false) {
+                this.currentPref = prefName;
+                data = DEFAULT_VOLUME;
+            }
+            player.volume = data;
         },
         async loadFile(soundName) {
             const storedFile = new StoredBlob(soundName),
@@ -128,7 +143,13 @@ const SOURCES = {
         async getPrefForHost(sourceSpec) {
             // For now we only have one pref per host, but hopefully not forever.
             //TODO even though a page might not have a custom sound, it may have a custom volume!
-            btoa(sourceSpec);
+            const hostPrefName = `sound-${sourceSpec}`,
+                { [hostPrefName]: hostPrefVal } = await browser.storage.local.get({
+                    [hostPrefName]: false
+                });
+            if(hostPrefVal) {
+                return hostPrefName;
+            }
             return this.PREF_NAME;
         },
         async onNotification(source, sourceSpec, sourceMuted = false) {
@@ -166,7 +187,6 @@ const SOURCES = {
         },
         preparePlay(url, prefName) {
             const player = this.getPlayer();
-            this.currentPref = prefName;
             this.setPlayerVolume(prefName, player);
             this.play(url, player);
         },
@@ -179,7 +199,7 @@ const SOURCES = {
         async playFromStorage(prefName) {
             const { [prefName]: soundName } = await browser.storage.local.get(prefName);
             if(soundName) {
-                const url = this.loadFile(soundName),
+                const url = this.loadFile(prefName + soundName),
                     discard = (e) => {
                         let otherEvent = "ended";
                         if(e.type == otherEvent) {
