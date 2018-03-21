@@ -12,7 +12,7 @@
     "lint:webext": "web-ext lint",
     "test": "npm run lint:js && npm run lint:css && npm run lint:webext",
     "start": "web-ext run",
-    "build": "web-ext build -i README.md package.json package-lock.json"
+    "build": "web-ext build -i README.md package.json package-lock.json images/Notification_Sound_Icon_Square.svg images/Notification_Sound_Icon_Square.png images/Notification_Sound_Icon.png"
   },
   "homepage": "https://addons.mozilla.org/en-US/firefox/addon/notification-sound/",
   "repository": {
