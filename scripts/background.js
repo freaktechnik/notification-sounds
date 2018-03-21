@@ -80,7 +80,7 @@ const SOURCES = {
                 URL.revokeObjectURL(oldURL);
             }
             if(soundName.length) {
-                const url = await this.loadFile(soundName);
+                const url = await this.loadFile(this.PREF_NAME + soundName);
                 this.player.src = url;
             }
             else {
