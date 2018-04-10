@@ -2,3 +2,5 @@
 *~
 node_modules
 web-ext-artifacts
+_locales/*
+!_locales/en/*
