@@ -303,11 +303,11 @@ const SOURCES = {
             const menuId = this.currentId;
             if(context.menuIds.includes(this.MENU_ITEM)) {
                 const updatedSpec = {
-                    enabled: true
-                };
-                const { allWebsites } = await browser.storage.local.get({
-                    allWebsites: true
-                });
+                        enabled: true
+                    },
+                    { allWebsites } = await browser.storage.local.get({
+                        allWebsites: true
+                    });
                 if(!this.isCurrentMenu(menuId)) {
                     return;
                 }
