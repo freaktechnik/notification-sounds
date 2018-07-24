@@ -131,14 +131,17 @@ const SOURCES = {
             }
             return false;
         },
+        async promisedPlay(player) {
+            await player.play();
+            this.playing = player;
+        },
         makeSound() {
             if(this.playing !== this.player && !this.playing.paused) {
                 this.playing.pause();
             }
             this.currentPref = this.PREF_NAME;
             this.player.currentTime = 0;
-            this.player.play();
-            this.playing = this.player;
+            return this.promisedPlay(this.player);
         },
         async getPrefForHost(sourceSpec) {
             // For now we only have one pref per host, but hopefully not forever.
@@ -161,7 +164,7 @@ const SOURCES = {
                         return true;
                     }
                 }
-                this.makeSound();
+                await this.makeSound();
                 return true;
             }
             return false;
@@ -182,18 +185,17 @@ const SOURCES = {
                 this.playing.pause();
             }
             player.src = url;
-            player.play();
-            this.playing = player;
+            return this.promisedPlay(player);
         },
         preparePlay(url, prefName) {
             const player = this.getPlayer();
             this.setPlayerVolume(prefName, player);
-            this.play(url, player);
+            return this.play(url, player);
         },
         async onPlay(source, sourceSpec, url, sourceMuted = false) {
             if(await this.shouldPlaySound(source, sourceSpec, sourceMuted)) {
                 const prefName = await this.getPrefForHost(sourceSpec);
-                this.preparePlay(url, prefName);
+                await this.preparePlay(url, prefName);
             }
         },
         async playFromStorage(prefName) {
@@ -209,7 +211,7 @@ const SOURCES = {
                         URL.revokeObjectURL(url);
                         this.playing = null;
                     };
-                this.preparePlay(url, prefName);
+                await this.preparePlay(url, prefName);
                 this.playing.addEventListener("ended", discard, {
                     once: true,
                     passive: true
@@ -356,13 +358,15 @@ const SOURCES = {
 
 browser.runtime.onMessage.addListener((message, sender) => {
     if(message === NOTIFICATION_TOPIC && isWebsite(sender)) {
-        NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url), sender.tab.mutedInfo && sender.tab.mutedInfo.muted);
+        NotificationListener.onNotification(SOURCES.WEBSITE, extractHost(sender.url), sender.tab.mutedInfo && sender.tab.mutedInfo.muted)
+            .catch(console.error);
     }
     else if(typeof message === "object" && message.command === "play" && isWebsite(sender)) {
-        NotificationListener.onPlay(SOURCES.WEBSITE, extractHost(sender.url), message.url, sender.tab.mutedInfo && sender.tab.mutedInfo.muted);
+        NotificationListener.onPlay(SOURCES.WEBSITE, extractHost(sender.url), message.url, sender.tab.mutedInfo && sender.tab.mutedInfo.muted)
+            .catch(console.error);
     }
     else if(typeof message === "object" && message.command === "preview-sound") {
-        NotificationListener.preview(message.pref);
+        return NotificationListener.preview(message.pref);
     }
     else if(message === "recent-extensions") {
         return Promise.resolve(RecentExtensions.get());

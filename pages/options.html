@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="../styles/options.css">
     </head>
     <body>
+        <section hidden id="error" class="error"></section>
         <section id="sound-section">
             <h1>Sound</h1>
             <p><label for="currentSound" class="browser-style-label currentSound-label">Current sound:</label> <output id="currentSound" class="currentSound">Default</output><button id="playSound" title="Preview sound" class="playSound browser-style">▶</button><button id="resetSound" class="resetSound browser-style disabled" disabled type="reset" title="Reset sound">🗙</button> <label for="volume" class="browser-style-label">Volume:</label><input type="range" id="volume" class="volume" min="0" max="1" step="any" value="1.0"></p>
@@ -45,7 +46,8 @@
                     <label class="browser-style browser-style-label">Extension ID: <input type="text" list="extensions" minlength="1" required></label>
                     <datalist id="extensions">
                         <option value="jid0-z2wAjbeFD5dTCgsj70eQ6UAqQl4@jetpack">Live Stream Notifier</option>
-                        <option value="{8d4b86c5-64bf-4780-b029-0112386735ab}">Advanced GitHub Notifications</options>
+                        <option value="{8d4b86c5-64bf-4780-b029-0112386735ab}">Advanced GitHub Notifications</option>
+                        <option value="{4b69f471-a76c-4355-be23-8d9b0c9802db}">Netatmo CO₂ Indicator</option>
                     </datalist>
                     <button class="addbutton browser-style default" type="submit" title="Add">➕</button>
                 </form>

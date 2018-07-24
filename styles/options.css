@@ -55,7 +55,8 @@ output {
     margin-left: 1em;
 }
 
-.filterlist ul > li details > summary > div {
+.filterlist ul > li details > summary > div,
+.filterlist ul > li.no-details {
     display: flex;
 }
 
@@ -65,4 +66,11 @@ footer {
 
 .subsection {
     margin-left: 24px;
+}
+
+.error {
+    background: #ff0039;
+    color: white;
+    padding: 0.5em;
+    margin-bottom: 0.5em;
 }

@@ -3,6 +3,7 @@
 
 //TODO nicer look for extensions list. Probably needs some inter-extension communication though :S
 //TODO react to changes from context menu
+//TODO test media with an audio element and canPlayType()
 
 const stores = {
         extension: {
@@ -20,6 +21,19 @@ const stores = {
     PREFIX = 'sound-';
 
 let globalSound;
+
+const showError = (error) => {
+    let msg;
+    if(error instanceof Error) {
+        msg = error.message;
+    }
+    else {
+        msg = error;
+    }
+    const errorPanel = document.getElementById("error");
+    errorPanel.textContent = msg;
+    errorPanel.hidden = false;
+};
 
 class Sound {
     constructor(prefName, root, defaultSound = browser.i18n.getMessage('defaultSound')) {
@@ -45,7 +59,7 @@ class Sound {
             browser.runtime.sendMessage({
                 command: "preview-sound",
                 pref: this.prefName
-            });
+            }).catch(showError);
         }, {
             capture: false,
             passive: true
@@ -211,7 +225,7 @@ class FilterList {
                     this.appendItem(value);
                 }
             })
-            .catch(console.error);
+            .catch(showError);
 
         const input = this.anchor.querySelector("input");
 
@@ -253,6 +267,9 @@ class FilterList {
 
             container = flexContainer;
             parent = details;
+        }
+        else {
+            root.classList.add('no-details');
         }
         container.appendChild(await this.itemContent(value));
         root.dataset.value = value;
@@ -308,10 +325,11 @@ class FilterList {
                     return browser.storage.local.set(values);
                 }),
                 this.appendItem(value)
-            ]).catch(console.error);
+            ]).catch(showError);
         }
         catch(e) {
             // Do nothing
+            // showError(e);
         }
     }
 
@@ -352,7 +370,7 @@ class Filter {
                 this.all.checked = values[this.all.id];
                 this.update();
             })
-            .catch(console.error);
+            .catch(showError);
 
         this.all.addEventListener("input", () => {
             this.update();
@@ -440,7 +458,7 @@ class Checkbox {
             .then(({ [this.storageKey]: value }) => {
                 this.checkbox.checked = value;
             })
-            .catch(console.error);
+            .catch(showError);
     }
 
     addChangeListener(cbk) {
@@ -484,5 +502,5 @@ window.addEventListener("DOMContentLoaded", () => {
                 datalist.appendChild(o);
             }
         })
-        .catch(console.error);
+        .catch(showError);
 });
