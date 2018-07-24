@@ -1,7 +1,7 @@
 {
   "title": "Notification Sound",
   "name": "notification-sound",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Makes a sound when a notification is shown",
   "author": "Martin Giger (https://humanoids.be)",
   "license": "MPL-2.0",
