@@ -10,7 +10,8 @@
     "lint:js": "eslint scripts/ manifest.json --ext js,json",
     "lint:css": "stylelint styles/*.css",
     "lint:webext": "web-ext lint",
-    "test": "npm run lint:js && npm run lint:css && npm run lint:webext",
+    "lint:ec": "eclint check $(git ls-files)",
+    "test": "npm run lint:js && npm run lint:css && npm run lint:webext && npm run lint:ec",
     "start": "web-ext run",
     "build": "web-ext build -i README.md package.json package-lock.json images/Notification_Sound_Icon_Square.svg"
   },
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@freaktechnik/eslint-config-extension": "^6.4.4",
+    "eclint": "^2.8.0",
     "eslint": "^5.1.0",
     "stylelint": "^9.3.0",
     "stylelint-config-standard": "^18.2.0",
