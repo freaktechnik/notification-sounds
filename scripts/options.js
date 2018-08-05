@@ -47,7 +47,7 @@ class Sound {
         this.preview = this.root.querySelector(".playSound");
         this.restoreFile();
 
-        this.input.addEventListener("input", () => this.selectFile(), {
+        this.input.addEventListener("input", () => this.selectFile().catch(showError), {
             capture: false,
             passive: true
         });

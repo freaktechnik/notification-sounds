@@ -1,6 +1,6 @@
 const Database = {
     DB_NAME: "notification-sounds",
-    DB_VERSION: 1,
+    DB_VERSION: 2,
     STORE_NAME: "sounds",
     db: undefined,
     _waitForRequest(request) {
@@ -12,8 +12,10 @@ const Database = {
     init() {
         if(!this.db) {
             const request = window.indexedDB.open(Database.DB_NAME, Database.DB_VERSION);
-            request.addEventListener("onupgradeneeded", (e) => {
-                e.target.result.createObjectStore(Database.STORE_NAME);
+            request.addEventListener("upgradeneeded", (e) => {
+                if(!Array.from(e.target.result.objectStoreNames).includes(Database.STORE_NAME)) {
+                    e.target.result.createObjectStore(Database.STORE_NAME);
+                }
             }, { once: true });
             return this._waitForRequest(request).then((r) => {
                 this.db = r;
