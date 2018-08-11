@@ -378,6 +378,13 @@ browser.runtime.onMessageExternal.addListener((message, sender) => {
         return NotificationListener.onNotification(SOURCES.EXTENSION, sender.id);
     }
 });
+browser.runtime.onInstalled.addListener((details) => {
+    if(details.reason === "install" && !details.temporary) {
+        browser.tabs.create({
+            url: browser.runtime.getURL("pages/firstrun.html")
+        });
+    }
+});
 
 NotificationListener.init();
 DownloadListener.init();
