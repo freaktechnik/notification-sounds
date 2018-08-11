@@ -47,5 +47,8 @@
     },
     "customSound": {
         "message": "Set custom sound"
+    },
+    "cannotDecode": {
+        "message": "Browser can not play selected file"
     }
 }

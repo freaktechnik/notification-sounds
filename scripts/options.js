@@ -18,7 +18,8 @@ const stores = {
     WWW_PREFIX = "www.",
     FULL_VOLUME = 1.0,
     GLOBAL_PREF = 'soundName',
-    PREFIX = 'sound-';
+    PREFIX = 'sound-',
+    TEST_AUDIO = new Audio();
 
 let globalSound;
 
@@ -36,6 +37,10 @@ const showError = (error) => {
 };
 
 class Sound {
+    static canPlay(mime) {
+        return TEST_AUDIO.canPlayType(mime).length > 0;
+    }
+
     constructor(prefName, root, defaultSound = browser.i18n.getMessage('defaultSound')) {
         this.prefName = prefName;
         this.root = root;
@@ -75,6 +80,7 @@ class Sound {
     }
 
     async reset() {
+        this.input.setCustomValidity("");
         this.resetButton.disabled = true;
         this.resetButton.classList.add("disabled");
         this.input.value = '';
@@ -97,6 +103,12 @@ class Sound {
         if(this.input.files.length) {
             const [ file ] = this.input.files,
                 storedFile = new StoredBlob(this.prefName + file.name);
+            if(!Sound.canPlay(file.type)) {
+                console.error("Browser reported that it can not play", file.type, "at all");
+                this.input.setCustomValidity(browser.i18n.getMessage("cannotDecode"));
+                return;
+            }
+            this.input.setCustomValidity("");
             this.resetButton.disabled = false;
             this.resetButton.classList.remove("disabled");
             this.preview.disabled = false;
