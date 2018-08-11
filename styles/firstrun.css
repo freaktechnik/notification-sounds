@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     font-family: sans-serif;
     padding: 0;
     margin: 0;
@@ -15,7 +16,7 @@ main {
 }
 
 button {
-    background: #0A84FF;
+    background: #0a84ff;
     padding: 0.7em;
     border-radius: 5px;
     border: none;

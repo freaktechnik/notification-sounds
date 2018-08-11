@@ -19,26 +19,26 @@ const stores = {
     FULL_VOLUME = 1.0,
     GLOBAL_PREF = 'soundName',
     PREFIX = 'sound-',
-    TEST_AUDIO = new Audio();
+    TEST_AUDIO = new Audio(),
+    EMPTY = 0,
+    showError = (error) => {
+        let msg;
+        if(error instanceof Error) {
+            msg = error.message;
+        }
+        else {
+            msg = error;
+        }
+        const errorPanel = document.getElementById("error");
+        errorPanel.textContent = msg;
+        errorPanel.hidden = false;
+    };
 
 let globalSound;
 
-const showError = (error) => {
-    let msg;
-    if(error instanceof Error) {
-        msg = error.message;
-    }
-    else {
-        msg = error;
-    }
-    const errorPanel = document.getElementById("error");
-    errorPanel.textContent = msg;
-    errorPanel.hidden = false;
-};
-
 class Sound {
     static canPlay(mime) {
-        return TEST_AUDIO.canPlayType(mime).length > 0;
+        return TEST_AUDIO.canPlayType(mime).length > EMPTY;
     }
 
     constructor(prefName, root, defaultSound = browser.i18n.getMessage('defaultSound')) {
@@ -436,7 +436,7 @@ class HostFilterList extends FilterList {
     validate(value) {
         const NO_RESULT = -1;
         if(value.search(/[a-zA-Z0-9-.]+\.[a-z][a-z]+/) === NO_RESULT) {
-            throw new Error();
+            throw new Error("Not a valid host name");
         }
         if(value.startsWith(WWW_PREFIX)) {
             return value.substr(WWW_PREFIX.length);
@@ -495,7 +495,6 @@ window.addEventListener("DOMContentLoaded", () => {
     download.addChangeListener((checked) => {
         downloadAlways.toggleState(checked);
     });
-
 
     const datalist = document.getElementById("extensions");
     browser.runtime.sendMessage("recent-extensions")

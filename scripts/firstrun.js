@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         browser.runtime.openOptionsPage();
     }, {
         passive: true
-    })
+    });
 }, {
     passive: true,
     once: true
