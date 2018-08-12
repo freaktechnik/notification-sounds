@@ -22,7 +22,7 @@ const stores = {
     TEST_AUDIO = new Audio(),
     EMPTY = 0,
     showError = (error) => {
-        console.log(error)
+        console.error(error);
         let msg;
         if(typeof error === 'object') {
             if(error instanceof Error || 'message' in error) {
