@@ -22,9 +22,18 @@ const stores = {
     TEST_AUDIO = new Audio(),
     EMPTY = 0,
     showError = (error) => {
+        console.log(error)
         let msg;
-        if(error instanceof Error) {
-            msg = error.message;
+        if(typeof error === 'object') {
+            if(error instanceof Error || 'message' in error) {
+                msg = error.message;
+            }
+            else if('target' in error && 'error' in error.target) {
+                msg = error.target.error.message;
+            }
+            else {
+                msg = JSON.stringify(error);
+            }
         }
         else {
             msg = error;
@@ -108,16 +117,16 @@ class Sound {
                 this.input.setCustomValidity(browser.i18n.getMessage("cannotDecode"));
                 return;
             }
+            await storedFile.save(file);
+            await browser.storage.local.set({
+                [this.prefName]: file.name
+            });
             this.input.setCustomValidity("");
             this.resetButton.disabled = false;
             this.resetButton.classList.remove("disabled");
             this.preview.disabled = false;
             this.preview.classList.remove("disabled");
             this.output.value = file.name;
-            await storedFile.save(file);
-            await browser.storage.local.set({
-                [this.prefName]: file.name
-            });
         }
     }
 
