@@ -117,6 +117,7 @@ class Sound {
                 this.input.setCustomValidity(browser.i18n.getMessage("cannotDecode"));
                 return;
             }
+            const { [this.prefName]: oldName } = await browser.storage.local.get(this.prefName);
             await storedFile.save(file);
             await browser.storage.local.set({
                 [this.prefName]: file.name
@@ -127,6 +128,10 @@ class Sound {
             this.preview.disabled = false;
             this.preview.classList.remove("disabled");
             this.output.value = file.name;
+            if(oldName) {
+                const oldFile = new StoredBlob(this.prefName + oldName);
+                await oldFile.delete();
+            }
         }
     }
 
