@@ -478,6 +478,9 @@ class Checkbox {
         })
             .then(({ [this.storageKey]: value }) => {
                 this.checkbox.checked = value;
+                for(const listener of this.changeListeners.values()) {
+                    listener(this.checkbox.checked);
+                }
             })
             .catch(showError);
     }
@@ -488,7 +491,7 @@ class Checkbox {
 
     toggleState(state) {
         this.checkbox.disabled = !state;
-        this.checkbox.classList.toggle('disabled', !state);
+        this.checkbox.parentNode.classList.toggle('disabled', !state);
     }
 }
 
@@ -504,6 +507,9 @@ window.addEventListener("DOMContentLoaded", () => {
     download.addChangeListener((checked) => {
         downloadAlways.toggleState(checked);
     });
+    if(!download.checkbox.checked) {
+        downloadAlways.toggleState(false);
+    }
 
     const datalist = document.getElementById("extensions");
     browser.runtime.sendMessage("recent-extensions")
