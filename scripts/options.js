@@ -100,7 +100,7 @@ class Sound {
         }
         const { [this.prefName]: soundName } = await browser.storage.local.get(this.prefName);
         if(soundName) {
-            const storedFile = new StoredBlob(soundName);
+            const storedFile = new StoredBlob(this.prefName + soundName);
             await storedFile.delete();
         }
         return browser.storage.local.set({
