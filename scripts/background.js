@@ -201,7 +201,7 @@ const SOURCES = {
         async playFromStorage(prefName) {
             const { [prefName]: soundName } = await browser.storage.local.get(prefName);
             if(soundName) {
-                const url = this.loadFile(prefName + soundName),
+                const url = await this.loadFile(prefName + soundName),
                     discard = (e) => {
                         let otherEvent = "ended";
                         if(e.type == otherEvent) {

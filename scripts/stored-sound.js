@@ -27,7 +27,7 @@ const Database = {
         await this.init();
         const transaction = this.db.transaction(Database.STORE_NAME, "readwrite"),
             store = transaction.objectStore(Database.STORE_NAME),
-            request = store.add(blob, name);
+            request = store.put(blob, name);
         return this._waitForRequest(request);
     },
     async get(name) {
