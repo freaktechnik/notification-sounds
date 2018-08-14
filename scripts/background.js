@@ -79,19 +79,21 @@ const SOURCES = {
                 this.player.src = "";
                 URL.revokeObjectURL(oldURL);
             }
+            let url = this.DEFAULT_SOUND;
             if(soundName.length) {
                 try {
-                    const url = await this.loadFile(this.PREF_NAME + soundName);
-                    this.player.src = url;
+                    url = await this.loadFile(this.PREF_NAME + soundName);
                 }
                 catch(e) {
                     console.error("Could not load configured sound", e);
-                    this.player.src = this.DEFAULT_SOUND;
+                    await browser.runtime.sendMessage({
+                        command: "error",
+                        error: e.message
+                    });
+                    url = this.DEFAULT_SOUND;
                 }
             }
-            else {
-                this.player.src = this.DEFAULT_SOUND;
-            }
+            this.player.src = url;
         },
         async extensionAllowed(id) {
             const {
