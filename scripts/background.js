@@ -206,7 +206,13 @@ const SOURCES = {
         async onPlay(source, sourceSpec, url, sourceMuted = false) {
             if(await this.shouldPlaySound(source, sourceSpec, sourceMuted)) {
                 const prefName = await this.getPrefForHost(sourceSpec);
-                await this.preparePlay(url, prefName);
+                try {
+                    await this.preparePlay(url, prefName);
+                }
+                catch(e) {
+                    console.warn("Couldn't play file specified by the website, falling back to default sound", e);
+                    await this.onNotification(source, sourceSpec, sourceMuted);
+                }
             }
         },
         async playFromStorage(prefName) {
