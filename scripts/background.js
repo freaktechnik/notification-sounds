@@ -80,8 +80,14 @@ const SOURCES = {
                 URL.revokeObjectURL(oldURL);
             }
             if(soundName.length) {
-                const url = await this.loadFile(this.PREF_NAME + soundName);
-                this.player.src = url;
+                try {
+                    const url = await this.loadFile(this.PREF_NAME + soundName);
+                    this.player.src = url;
+                }
+                catch(e) {
+                    console.error("Could not load configured sound", e);
+                    this.player.src = this.DEFAULT_SOUND;
+                }
             }
             else {
                 this.player.src = this.DEFAULT_SOUND;
@@ -157,11 +163,14 @@ const SOURCES = {
         },
         async onNotification(source, sourceSpec, sourceMuted = false) {
             if(await this.shouldMakeSound(source, sourceSpec, sourceMuted)) {
-                if(source === SOURCES.WEBSITE) {
-                    const prefName = await this.getPrefForHost(sourceSpec);
-                    if(prefName !== this.PREF_NAME) {
+                const prefName = await this.getPrefForHost(sourceSpec);
+                if(prefName !== this.PREF_NAME) {
+                    try {
                         await this.playFromStorage(prefName);
                         return true;
+                    }
+                    catch(e) {
+                        console.error("Could not load and play custom sound, falling back to global sound", e);
                     }
                 }
                 await this.makeSound();
