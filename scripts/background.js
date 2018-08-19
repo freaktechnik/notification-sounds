@@ -298,54 +298,146 @@ const SOURCES = {
     TabMenu = {
         MENU_ITEM: 'toggle-ignore',
         ONE_ITEM: 1,
+        TST_ID: 'treestyletab@piro.sakura.ne.jp',
+        TYPES: {
+            VANILLA: 'vanilla',
+            TST: 'tst'
+        },
+        TST_TIMEOUT: 10000,
         currentId: 0,
+        tstCurrentId: 0,
         disabledLabel: browser.i18n.getMessage('extensionName'),
+        hasTST: false,
         init() {
             if(!browser.menus.hasOwnProperty('onShown') || !browser.menus.hasOwnProperty('onHidden')) {
                 // Don't show the menu when we can't update the menu item
                 return;
             }
-            const { content_scripts: [ contentScript ] } = browser.runtime.getManifest();
-            browser.menus.create({
-                contexts: [ "tab" ],
-                documentUrlPatterns: contentScript.matches,
-                id: this.MENU_ITEM,
-                title: this.disabledLabel,
-                enabled: false,
-                type: 'checkbox'
-            });
+            const { content_scripts: [ contentScript ] } = browser.runtime.getManifest(),
+                params = {
+                    contexts: [ "tab" ],
+                    documentUrlPatterns: contentScript.matches,
+                    id: this.MENU_ITEM,
+                    title: this.disabledLabel,
+                    enabled: false,
+                    type: 'checkbox'
+                };
+            browser.menus.create(params);
+            this.registerTST(params);
             browser.menus.onShown.addListener((context, tab) => this.updateItem(context, tab).catch(console.error));
             browser.menus.onHidden.addListener(() => this.closeMenu());
             browser.menus.onClicked.addListener((context, tab) => this.handleClick(context, tab).catch(console.error));
+            browser.runtime.onMessageExternal.addListener((message, sender) => {
+                if(sender.id === this.TST_ID) {
+                    switch(message.type) {
+                    case 'fake-contextMenu-click':
+                        this.handleClick(message.info, message.tab).catch(console.error);
+                        break;
+                    case 'fake-contextMenu-shown':
+                        this.updateItem(message.info, message.tab, this.TYPES.TST).catch(console.error);
+                        break;
+                    case 'fake-contextMenu-hidden':
+                        this.closeMenu(this.TYPES.TST);
+                        break;
+                    case 'shutdown':
+                        if(this.tstCheck) {
+                            clearInterval(this.tstCheck);
+                        }
+                        this.hasTST = false;
+                        break;
+                    case 'ready':
+                        this.registerTST(params);
+                        break;
+                    default:
+                    }
+                }
+            });
         },
-        async updateItem(context, tab) {
-            const menuId = this.currentId;
-            if(context.menuIds.includes(this.MENU_ITEM)) {
+        async registerTST(params) {
+            try {
+                await browser.runtime.sendMessage(this.TST_ID, {
+                    type: 'register-self',
+                    name: browser.i18n.getMessage("extensionName"),
+                    icons: browser.runtime.getManifest().icons,
+                    listeningTypes: [
+                        'ready',
+                        'shutdown',
+                        'fake-contextMenu-click',
+                        'fake-contextMenu-shown',
+                        'fake-contextMenu-hidden'
+                    ]
+                });
+                this.hasTST = true;
+                await browser.runtime.sendMessage(this.TST_ID, {
+                    type: 'fake-contextMenu-create',
+                    params
+                });
+                this.tstCheck = setInterval(() => this.checkTST().catch(console.error), this.TST_TIMEOUT);
+            }
+            catch(e) {
+                this.hasTST = false;
+            }
+        },
+        async checkTST() {
+            try {
+                await browser.runtime.sendMessage(this.TST_ID, {
+                    type: 'ping'
+                });
+            }
+            catch(e) {
+                clearInterval(this.tstCheck);
+                this.hasTST = false;
+            }
+        },
+        async updateItem(context, tab, type = this.TYPES.VANILLA) {
+            const menuId = type === this.TYPES.VANILLA ? this.currentId : this.tstCurrentId;
+            if(context.menuIds.includes(this.MENU_ITEM) || type === this.TYPES.TST) {
                 const updatedSpec = {
                         enabled: true
                     },
                     { allWebsites } = await browser.storage.local.get({
                         allWebsites: true
                     });
-                if(!this.isCurrentMenu(menuId)) {
+                if(!this.isCurrentMenu(menuId, type)) {
                     return;
                 }
                 const host = extractHost(tab.url);
                 updatedSpec.title = browser.i18n.getMessage(allWebsites ? 'ignoreHost' : 'allowHost', host);
                 const canPlaySound = await NotificationListener.websiteAllowed(host, false);
-                if(!this.isCurrentMenu(menuId)) {
+                if(!this.isCurrentMenu(menuId, type)) {
                     return;
                 }
                 updatedSpec.checked = allWebsites ? !canPlaySound : canPlaySound;
-                browser.menus.update(this.MENU_ITEM, updatedSpec);
-                browser.menus.refresh();
+                if(this.hasTST && type === this.TYPES.TST) {
+                    await browser.runtime.sendMessage(this.TST_ID, {
+                        type: 'fake-contextMenu-update',
+                        params: [
+                            this.MENU_ITEM,
+                            updatedSpec
+                        ]
+                    });
+                }
+                else if(type === this.TYPES.VANILLA) {
+                    browser.menus.update(this.MENU_ITEM, updatedSpec);
+                    browser.menus.refresh();
+                }
             }
         },
-        closeMenu() {
-            ++this.currentId;
+        closeMenu(type = this.TYPES.VANILLA) {
+            if(type === this.TYPES.VANILLA) {
+                ++this.currentId;
+            }
+            else if(type === this.TYPES.TST) {
+                ++this.tstCurrentId;
+            }
         },
-        isCurrentMenu(menuId) {
-            return menuId === this.currentId;
+        isCurrentMenu(menuId, type = this.TYPES.VANILLA) {
+            if(type === this.TYPES.VANILLA) {
+                return menuId === this.currentId;
+            }
+            else if(type === this.TYPES.TST) {
+                return menuId === this.tstCurrentId;
+            }
         },
         async handleClick(context, tab) {
             const host = extractHost(tab.url),
