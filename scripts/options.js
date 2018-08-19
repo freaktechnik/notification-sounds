@@ -236,12 +236,14 @@ class FilterList {
         this.anchor = anchor;
         this.list = this.anchor.querySelector("ul");
         this.showSoundEditor = showSoundEditor;
+        this.changed = false;
 
         browser.storage.local.get({
             [this.datastore]: []
         })
             .then((values) => {
                 if(!values[this.datastore].length) {
+                    this.changed = true;
                     return browser.storage.local.set({
                         [this.datastore]: []
                     });
@@ -348,6 +350,7 @@ class FilterList {
             Promise.all([
                 browser.storage.local.get(this.datastore).then((values) => {
                     values[this.datastore].push(value);
+                    this.changed = true;
                     return browser.storage.local.set(values);
                 }),
                 this.appendItem(value)
@@ -362,6 +365,7 @@ class FilterList {
     removeItem(value) {
         const p = browser.storage.local.get(this.datastore).then((values) => {
                 const newValue = values[this.datastore].filter((v) => v !== value);
+                this.changed = true;
                 return browser.storage.local.set({
                     [this.datastore]: newValue
                 });
@@ -372,12 +376,19 @@ class FilterList {
     }
 
     clear() {
-        const { children } = this.list;
-        for(const ch of children) {
-            ch.remove();
+        while(this.list.firstElementChild) {
+            this.list.firstElementChild.remove();
         }
         this.anchor.querySelector(".addbutton").removeEventListener("click", this.addListener);
         this.anchor.querySelector("form").removeEventListener("submit", this.addListener);
+    }
+
+    didChange() {
+        if(this.changed) {
+            this.changed = false;
+            return true;
+        }
+        return false;
     }
 }
 
@@ -406,10 +417,14 @@ class Filter {
         });
 
         browser.storage.onChanged.addListener((changes, area) => {
-            if(area === 'local' && changes.hasOwnProperty(this.all.checked ? this.stores.blocked: this.stores.allowed)) {
+            if(area === 'local' && changes.hasOwnProperty(this.storeName) && !this.list.didChange()) {
                 this.update();
             }
         });
+    }
+
+    get storeName() {
+        return this.all.checked ? this.stores.blocked : this.stores.allowed;
     }
 
     update() {
@@ -424,12 +439,7 @@ class Filter {
 
         const anchor = this.section.querySelector(".filterlist"),
             ListConstructor = this.listType;
-        if(this.all.checked) {
-            this.list = new ListConstructor(this.stores.blocked, anchor, false);
-        }
-        else {
-            this.list = new ListConstructor(this.stores.allowed, anchor, true);
-        }
+        this.list = new ListConstructor(this.storeName, anchor, !this.all.checked);
     }
 
     updateTitle() {
