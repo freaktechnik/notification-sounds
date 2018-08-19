@@ -404,6 +404,12 @@ class Filter {
                 [this.all.id]: this.all.checked
             });
         });
+
+        browser.storage.onChanged.addListener((changes, area) => {
+            if(area === 'local' && changes.hasOwnProperty(this.all.checked ? this.stores.blocked: this.stores.allowed)) {
+                this.update();
+            }
+        });
     }
 
     update() {
