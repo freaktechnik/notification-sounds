@@ -9,7 +9,7 @@
         "message": "Remove"
     },
     "ignoreHost": {
-        "message": "Mute notifications from $HOST$",
+        "message": "Mute notifications &from $HOST$",
         "placeholders": {
             "HOST": {
                 "content": "$1"
@@ -17,7 +17,7 @@
         }
     },
     "allowHost": {
-        "message": "Make sound for notifications from $HOST$",
+        "message": "Make sound for notifications &from $HOST$",
         "placeholders": {
             "HOST": {
                 "content": "$1"
