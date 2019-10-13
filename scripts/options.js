@@ -181,8 +181,8 @@ class FilterList {
         currentSoundLabel.textContent = `${browser.i18n.getMessage('currentSound')} `;
         currentSound.classList.add('currentSound');
         currentSound.value = soundName;
-        currentSoundLabel.appendChild(currentSound);
-        firstP.appendChild(currentSoundLabel);
+        currentSoundLabel.append(currentSound);
+        firstP.append(currentSoundLabel);
 
         playSound.textContent = '▶';
         playSound.classList.add('playSound');
@@ -190,7 +190,7 @@ class FilterList {
         playSound.classList.add('disabled');
         playSound.disabled = true;
         playSound.title = browser.i18n.getMessage('previewSound');
-        firstP.appendChild(playSound);
+        firstP.append(playSound);
 
         resetSound.textContent = '🗙';
         resetSound.classList.add('resetSound');
@@ -199,7 +199,7 @@ class FilterList {
         resetSound.disabled = true;
         resetSound.type = 'reset';
         resetSound.title = browser.i18n.getMessage('resetSound');
-        firstP.appendChild(resetSound);
+        firstP.append(resetSound);
 
         firstP.insertAdjacentText('beforeend', ' ');
 
@@ -213,8 +213,8 @@ class FilterList {
         volume.step = "any";
         volume.value = volumeValue;
 
-        volumeLabel.appendChild(volume);
-        firstP.appendChild(volumeLabel);
+        volumeLabel.append(volume);
+        firstP.append(volumeLabel);
 
         soundLabel.classList.add('browser-style-label');
         soundLabel.textContent = `${browser.i18n.getMessage('replaceSound')} `;
@@ -223,11 +223,11 @@ class FilterList {
         sound.classList.add('sound');
         sound.accept = 'audio/*';
 
-        soundLabel.appendChild(sound);
-        secondP.appendChild(soundLabel);
+        soundLabel.append(sound);
+        secondP.append(soundLabel);
 
-        root.appendChild(firstP);
-        root.appendChild(secondP);
+        root.append(firstP);
+        root.append(secondP);
         return root;
     }
 
@@ -299,7 +299,7 @@ class FilterList {
         else {
             root.classList.add('no-details');
         }
-        container.appendChild(await this.itemContent(value));
+        container.append(await this.itemContent(value));
         root.dataset.value = value;
 
         if(this.showSoundEditor) {
@@ -307,7 +307,7 @@ class FilterList {
             soundButton.textContent = '♬';
             soundButton.title = browser.i18n.getMessage('customSound');
             soundButton.classList.add('browser-style');
-            container.appendChild(soundButton);
+            container.append(soundButton);
         }
 
         button.textContent = "🗙";
@@ -321,23 +321,23 @@ class FilterList {
             capture: false
         });
 
-        container.appendChild(button);
+        container.append(button);
         if(!container.isEqualNode(parent)) {
-            parent.appendChild(container);
+            parent.append(container);
         }
 
         if(this.showSoundEditor) {
             const summary = document.createElement("summary"),
                 soundControls = FilterList.buildPlayer();
-            summary.appendChild(container);
-            parent.appendChild(summary);
-            parent.appendChild(soundControls);
+            summary.append(container);
+            parent.append(summary);
+            parent.append(soundControls);
         }
         if(!parent.isEqualNode(root)) {
-            root.appendChild(parent);
+            root.append(parent);
         }
 
-        this.list.appendChild(root);
+        this.list.append(root);
     }
 
     validate(value) {
@@ -453,7 +453,7 @@ class ExtensionFilterList extends FilterList {
         try {
             const extension = await browser.management.get(value),
                 span = document.createElement("span");
-            span.appendChild(document.createTextNode(`${extension.name} (${extension.id})`));
+            span.append(document.createTextNode(`${extension.name} (${extension.id})`));
             return span;
         }
         catch(e) {
@@ -552,7 +552,7 @@ window.addEventListener("DOMContentLoaded", () => {
         })
         .then((options) => {
             for(const o of options) {
-                datalist.appendChild(o);
+                datalist.append(o);
             }
         })
         .catch(showError);
