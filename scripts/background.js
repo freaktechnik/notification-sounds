@@ -84,11 +84,11 @@ const SOURCES = {
                 try {
                     url = await this.loadFile(this.PREF_NAME + soundName);
                 }
-                catch(e) {
-                    console.error("Could not load configured sound", e);
+                catch(error) {
+                    console.error("Could not load configured sound", error);
                     await browser.runtime.sendMessage({
                         command: "error",
-                        error: e.message
+                        error: error.message
                     });
                     url = this.DEFAULT_SOUND;
                 }
@@ -155,10 +155,10 @@ const SOURCES = {
             // For now we only have one pref per host, but hopefully not forever.
             //TODO even though a page might not have a custom sound, it may have a custom volume!
             const hostPrefName = `sound-${sourceSpec}`,
-                { [hostPrefName]: hostPrefVal } = await browser.storage.local.get({
+                { [hostPrefName]: hostPrefValue } = await browser.storage.local.get({
                     [hostPrefName]: false
                 });
-            if(hostPrefVal) {
+            if(hostPrefValue) {
                 return hostPrefName;
             }
             return this.PREF_NAME;
@@ -171,8 +171,8 @@ const SOURCES = {
                         await this.playFromStorage(prefName);
                         return true;
                     }
-                    catch(e) {
-                        console.error("Could not load and play custom sound, falling back to global sound", e);
+                    catch(error) {
+                        console.error("Could not load and play custom sound, falling back to global sound", error);
                     }
                 }
                 await this.makeSound();
@@ -209,8 +209,8 @@ const SOURCES = {
                 try {
                     await this.preparePlay(url, prefName);
                 }
-                catch(e) {
-                    console.warn("Couldn't play file specified by the website, falling back to default sound", e);
+                catch(error) {
+                    console.warn("Couldn't play file specified by the website, falling back to default sound", error);
                     await this.onNotification(source, sourceSpec, sourceMuted);
                 }
             }
@@ -219,9 +219,9 @@ const SOURCES = {
             const { [prefName]: soundName } = await browser.storage.local.get(prefName);
             if(soundName) {
                 const url = await this.loadFile(prefName + soundName),
-                    discard = (e) => {
+                    discard = (event) => {
                         let otherEvent = "ended";
-                        if(e.type == otherEvent) {
+                        if(event.type == otherEvent) {
                             otherEvent = "pause";
                         }
                         this.playing.removeEventListener(otherEvent, discard);
@@ -247,10 +247,10 @@ const SOURCES = {
         }
     },
     extractHost = (url) => {
-        const urlObj = new URL(url);
-        let host = urlObj.hostname;
+        const urlObject = new URL(url);
+        let host = urlObject.hostname;
         if(host.startsWith(WWW_PREFIX)) {
-            host = host.substr(WWW_PREFIX.length);
+            host = host.slice(WWW_PREFIX.length);
         }
         return host;
     },
@@ -314,7 +314,7 @@ const SOURCES = {
                 return;
             }
             const { content_scripts: [ contentScript ] } = browser.runtime.getManifest(),
-                params = {
+                parameters = {
                     contexts: [ "tab" ],
                     documentUrlPatterns: contentScript.matches,
                     id: this.MENU_ITEM,
@@ -322,8 +322,8 @@ const SOURCES = {
                     enabled: false,
                     type: 'checkbox'
                 };
-            browser.menus.create(params);
-            this.registerTST(params);
+            browser.menus.create(parameters);
+            this.registerTST(parameters);
             browser.menus.onShown.addListener((context, tab) => this.updateItem(context, tab).catch(console.error));
             browser.menus.onHidden.addListener(() => this.closeMenu());
             browser.menus.onClicked.addListener((context, tab) => this.handleClick(context, tab).catch(console.error));
@@ -346,14 +346,14 @@ const SOURCES = {
                         this.hasTST = false;
                         break;
                     case 'ready':
-                        this.registerTST(params);
+                        this.registerTST(parameters);
                         break;
                     default:
                     }
                 }
             });
         },
-        async registerTST(params) {
+        async registerTST(parameters) {
             try {
                 await browser.runtime.sendMessage(this.TST_ID, {
                     type: 'register-self',
@@ -370,11 +370,11 @@ const SOURCES = {
                 this.hasTST = true;
                 await browser.runtime.sendMessage(this.TST_ID, {
                     type: 'fake-contextMenu-create',
-                    params
+                    params: parameters
                 });
                 this.tstCheck = setInterval(() => this.checkTST().catch(console.error), this.TST_TIMEOUT);
             }
-            catch(e) {
+            catch(error) {
                 this.hasTST = false;
             }
         },
@@ -384,7 +384,7 @@ const SOURCES = {
                     type: 'ping'
                 });
             }
-            catch(e) {
+            catch(error) {
                 clearInterval(this.tstCheck);
                 this.hasTST = false;
             }
@@ -451,7 +451,7 @@ const SOURCES = {
                     blockedWebsites: []
                 }),
                 list = allWebsites ? blockedWebsites : allowedWebsites,
-                updateProp = allWebsites ? 'blockedWebsites' : 'allowedWebsites';
+                updateProperty = allWebsites ? 'blockedWebsites' : 'allowedWebsites';
             if(list.includes(host)) {
                 list.splice(list.indexOf(host), this.ONE_ITEM);
             }
@@ -459,7 +459,7 @@ const SOURCES = {
                 list.push(host);
             }
             return browser.storage.local.set({
-                [updateProp]: list
+                [updateProperty]: list
             });
         }
     },

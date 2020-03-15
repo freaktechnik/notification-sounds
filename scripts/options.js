@@ -23,23 +23,23 @@ const stores = {
     EMPTY = 0,
     showError = (error) => {
         console.error(error);
-        let msg;
+        let message;
         if(typeof error === 'object') {
             if(error instanceof Error || 'message' in error) {
-                msg = error.message;
+                message = error.message;
             }
             else if('target' in error && 'error' in error.target) {
-                msg = error.target.error.message;
+                message = error.target.error.message;
             }
             else {
-                msg = JSON.stringify(error);
+                message = JSON.stringify(error);
             }
         }
         else {
-            msg = error;
+            message = error;
         }
         const errorPanel = document.getElementById("error");
-        errorPanel.textContent = msg;
+        errorPanel.textContent = message;
         errorPanel.hidden = false;
     };
 
@@ -201,7 +201,7 @@ class FilterList {
         resetSound.title = browser.i18n.getMessage('resetSound');
         firstP.append(resetSound);
 
-        firstP.insertAdjacentText('beforeend', ' ');
+        firstP.append(' ');
 
         volumeLabel.classList.add('browser-style-label');
         volumeLabel.textContent = browser.i18n.getMessage('volume');
@@ -257,8 +257,8 @@ class FilterList {
 
         const input = this.anchor.querySelector("input");
 
-        this.addListener = (e) => {
-            e.preventDefault();
+        this.addListener = (event) => {
+            event.preventDefault();
             if(input.validity.valid && input.value != "") {
                 this.addItem(input.value);
                 input.value = "";
@@ -356,9 +356,9 @@ class FilterList {
                 this.appendItem(value)
             ]).catch(showError);
         }
-        catch(e) {
+        catch(error) {
             // Do nothing
-            // showError(e);
+            // showError(error);
         }
     }
 
@@ -456,7 +456,7 @@ class ExtensionFilterList extends FilterList {
             span.append(document.createTextNode(`${extension.name} (${extension.id})`));
             return span;
         }
-        catch(e) {
+        catch(error) {
             return super.itemContent(value);
         }
     }
@@ -465,11 +465,11 @@ class ExtensionFilterList extends FilterList {
 class HostFilterList extends FilterList {
     validate(value) {
         const NO_RESULT = -1;
-        if(value.search(/[a-zA-Z0-9-.]+\.[a-z][a-z]+/) === NO_RESULT) {
+        if(value.search(/[\d.A-Za-z-]+\.[a-z]{2,}/) === NO_RESULT) {
             throw new Error("Not a valid host name");
         }
         if(value.startsWith(WWW_PREFIX)) {
-            return value.substr(WWW_PREFIX.length);
+            return value.slice(WWW_PREFIX.length);
         }
         return value;
     }
@@ -545,7 +545,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 promises = [];
             for(const recent of recents) {
                 if(!existingRecents.includes(recent)) {
-                    promises.push(browser.management.get(recent).then((e) => new Option(e.name, recent), () => new Option(recent)));
+                    promises.push(browser.management.get(recent).then((existing) => new Option(existing.name, recent), () => new Option(recent)));
                 }
             }
             return Promise.all(promises);

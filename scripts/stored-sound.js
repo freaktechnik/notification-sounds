@@ -5,16 +5,16 @@ const Database = {
     db: undefined,
     _waitForRequest(request) {
         return new Promise((resolve, reject) => { // eslint-disable-line promise/avoid-new
-            request.addEventListener("success", (e) => resolve(e.target.result), { once: true });
+            request.addEventListener("success", (event) => resolve(event.target.result), { once: true });
             request.addEventListener("error", reject, { once: true });
         });
     },
     init() {
         if(!this.db) {
             const request = window.indexedDB.open(Database.DB_NAME, Database.DB_VERSION);
-            request.addEventListener("upgradeneeded", (e) => {
-                if(!Array.from(e.target.result.objectStoreNames).includes(Database.STORE_NAME)) {
-                    e.target.result.createObjectStore(Database.STORE_NAME);
+            request.addEventListener("upgradeneeded", (event) => {
+                if(!Array.from(event.target.result.objectStoreNames).includes(Database.STORE_NAME)) {
+                    event.target.result.createObjectStore(Database.STORE_NAME);
                 }
             }, { once: true });
             return this._waitForRequest(request).then((r) => {

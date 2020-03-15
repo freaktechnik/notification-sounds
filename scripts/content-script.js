@@ -20,12 +20,12 @@ const OPTIONS_INDEX = 1,
     /**
      * @class
      * @extends {Notification}
-     * @param {?} args - Arguments.
+     * @param {?} arguments_ - Arguments.
      * @returns {Notification} Instance.
      */
-    ModifiedNotification = function(...args) {
-        dispatchNotificationEvent(args.length > OPTIONS_INDEX ? args[OPTIONS_INDEX] : undefined);
-        return new OriginalNotification(...args);
+    ModifiedNotification = function(...arguments_) {
+        dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX ? arguments_[OPTIONS_INDEX] : undefined);
+        return new OriginalNotification(...arguments_);
     },
     descriptor = window.wrappedJSObject.Object.getOwnPropertyDescriptors(OriginalNotification);
 
@@ -56,13 +56,13 @@ Object.setPrototypeOf(window.wrappedJSObject.Notification, Object.getPrototypeOf
 // Override serviceWorker notifications in website scope.
 const original = window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification,
     /**
-     * @param {?} args - Arguments.
+     * @param {?} arguments_ - Arguments.
      * @this {ServiceWorkerRegistration}
      * @returns {Promise} Resolves with the original promise.
      */
-    replacement = function(...args) {
-        dispatchNotificationEvent(args.length > OPTIONS_INDEX ? args[OPTIONS_INDEX] : undefined);
-        return Reflect.apply(original, this, args);
+    replacement = function(...arguments_) {
+        dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX ? arguments_[OPTIONS_INDEX] : undefined);
+        return Reflect.apply(original, this, arguments_);
     };
 
 window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification = exportFunction(replacement, window, {
