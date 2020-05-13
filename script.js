@@ -22,9 +22,11 @@ const EXTERNAL_SOUND = "tetris.MP3",
         }
     };
 
-navigator.serviceWorker.register('sw.js');
+document.addEventListener("DOMContentLoaded", () => {
+    navigator.serviceWorker.register('sw.js');
 
-document.getElementById("normal").addEventListener("click", () => showNotification());
-document.getElementById("silent").addEventListener("click", () => showNotification({ silent: true }));
-document.getElementById("custom").addEventListener("click", () => showNotification({ sound: EXTERNAL_SOUND}));
-document.getElementById("swnormal").addEventListener("click", () => showSWNotification());
+    document.getElementById("normal").addEventListener("click", () => showNotification());
+    document.getElementById("silent").addEventListener("click", () => showNotification({ silent: true }));
+    document.getElementById("custom").addEventListener("click", () => showNotification({ sound: EXTERNAL_SOUND}));
+    document.getElementById("swnormal").addEventListener("click", () => showSWNotification());
+});
