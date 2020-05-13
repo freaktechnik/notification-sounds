@@ -36,6 +36,10 @@ ServiceWorker tests don't work, since JSFiddle has no ServiceWorker.
 
 [JSFiddle Notification Tester](https://jsfiddle.net/y5gj9tj1/10/)
 
+## Translations
+
+Translations are managed on [Transifex])(https://www.transifex.com/freaktechnik/notification-sound/). Feel free to request a new language if you are willing to translate into it.
+
 ## Support and FAQ
 https://discourse.mozilla.org/t/support-notification-sound/23758
 
