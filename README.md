@@ -32,9 +32,8 @@ browser.notifications.onShown.addListener(() => {
 ```
 
 ## Notification tester
-ServiceWorker tests don't work, since JSFiddle has no ServiceWorker.
 
-[JSFiddle Notification Tester](https://jsfiddle.net/y5gj9tj1/10/)
+[Notification Tester](https://freaktechnik.github.io/notification-sounds/)
 
 ## Translations
 
