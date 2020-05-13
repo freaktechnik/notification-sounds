@@ -66,3 +66,5 @@ patch:
         patched: '2020-05-03T06:46:58.669Z'
     - stylelint > @stylelint/postcss-css-in-js > @babel/core > @babel/helper-module-transforms > @babel/helper-replace-supers > @babel/traverse > @babel/helper-function-name > @babel/template > @babel/types > lodash:
         patched: '2020-05-03T06:46:58.669Z'
+    - '@freaktechnik/eslint-config-extension > @freaktechnik/eslint-config-browser > @freaktechnik/eslint-config-base > eslint-plugin-unicorn > lodash':
+        patched: '2020-05-13T20:36:13.990Z'
