@@ -37,7 +37,7 @@ browser.notifications.onShown.addListener(() => {
 
 ## Translations
 
-Translations are managed on [Transifex])(https://www.transifex.com/freaktechnik/notification-sound/). Feel free to request a new language if you are willing to translate into it.
+Translations are managed on [Transifex](https://www.transifex.com/freaktechnik/notification-sound/). Feel free to request a new language if you are willing to translate into it.
 
 ## Support and FAQ
 https://discourse.mozilla.org/t/support-notification-sound/23758
