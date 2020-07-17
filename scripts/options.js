@@ -541,14 +541,13 @@ window.addEventListener("DOMContentLoaded", () => {
     const datalist = document.getElementById("extensions");
     browser.runtime.sendMessage("recent-extensions")
         .then((recents) => {
-            const existingRecents = Array.from(datalist.options, (o) => o.value),
-                promises = [];
-            for(const recent of recents) {
-                if(!existingRecents.includes(recent)) {
-                    promises.push(browser.management.get(recent).then((existing) => new Option(existing.name, recent), () => new Option(recent)));
-                }
-            }
-            return Promise.all(promises);
+            const existingRecents = new Set(Array.from(datalist.options, (o) => o.value));
+            return Promise.all(recents
+                .filter((recent) => !existingRecents.has(recent))
+                .map((recent) => browser.management.get(recent)
+                    .then((existing) => new Option(existing.name, recent), () => new Option(recent))
+                )
+            );
         })
         .then((options) => {
             for(const o of options) {
