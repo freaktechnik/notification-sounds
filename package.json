@@ -13,9 +13,7 @@
     "lint:ec": "eclint check $(git ls-files)",
     "test": "npm run lint:js && npm run lint:css && npm run lint:webext && npm run lint:ec",
     "start": "web-ext run",
-    "build": "web-ext build -i README.md package.json package-lock.json images/Notification_Sound_Icon_Square.svg",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "build": "web-ext build -i README.md package.json package-lock.json images/Notification_Sound_Icon_Square.svg"
   },
   "homepage": "https://addons.mozilla.org/en-US/firefox/addon/notification-sound/",
   "repository": {
@@ -48,8 +46,5 @@
       "plugin/no-unsupported-browser-features": true
     }
   },
-  "snyk": true,
-  "dependencies": {
-    "snyk": "^1.320.3"
-  }
+  "dependencies": {}
 }

@@ -15,6 +15,6 @@ block_comment_start = /*
 block_comment = *
 block_comment_end = */
 
-[{package.json,package-lock.json,.travis.yml,.snyk}]
+[{package.json,package-lock.json,.travis.yml,dependabot.yml}]
 indent_style = space
 indent_size = 2
