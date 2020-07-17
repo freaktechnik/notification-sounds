@@ -33,7 +33,7 @@
     "web-ext": "^4.3.0"
   },
   "browserslist": [
-    "last 1 Firefox versions"
+    "Firefox >= 63"
   ],
   "stylelint": {
     "extends": "stylelint-config-standard",
