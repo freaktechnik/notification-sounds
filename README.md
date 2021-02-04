@@ -1,7 +1,5 @@
 # ![icon](images/Notification_Sound_Icon_Square.svg) Notification Sound
 
-[![Build Status](https://travis-ci.org/freaktechnik/notification-sounds.svg?branch=master)](https://travis-ci.org/freaktechnik/notification-sounds)
-
 Makes a sound when a notification is shown.
 
 Overrides Website's `Notification` constructor and `showNotification` method on
