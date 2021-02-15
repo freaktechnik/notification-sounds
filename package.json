@@ -27,7 +27,7 @@
     "@freaktechnik/eslint-config-extension": "^8.0.2",
     "eclint": "^2.8.1",
     "eslint": "^7.20.0",
-    "stylelint": "^13.9.0",
+    "stylelint": "^13.10.0",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-no-unsupported-browser-features": "^4.1.4",
     "web-ext": "^5.5.0"
