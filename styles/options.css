@@ -26,11 +26,11 @@ footer ul li {
     margin-right: 1em;
 }
 
-.currentSound-label {
+.current-sound-label {
     font-weight: bold;
 }
 
-.currentSound-label > output {
+.current-sound-label > output {
     font-weight: normal;
 }
 

@@ -177,7 +177,7 @@ class FilterList {
             sound = document.createElement('input');
 
         currentSoundLabel.classList.add('browser-style-label');
-        currentSoundLabel.classList.add('currentSound-label');
+        currentSoundLabel.classList.add('current-sound-label');
         currentSoundLabel.textContent = `${browser.i18n.getMessage('currentSound')} `;
         currentSound.classList.add('currentSound');
         currentSound.value = soundName;
