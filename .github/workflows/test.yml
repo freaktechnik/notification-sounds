@@ -11,7 +11,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
       - run: npm ci --ignore-scripts --no-audit
   lint-js:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
       - run: npm ci --no-audit
       - run: npm run lint:js
   lint-css:
@@ -38,7 +38,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
       - run: npm ci --no-audit
       - run: npm run lint:css
   lint-editorconfig:
@@ -52,7 +52,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
       - run: npm ci --no-audit
       - run: npm run lint:ec
   lint-webext:
