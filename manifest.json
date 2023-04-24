@@ -3,7 +3,7 @@
     "name": "__MSG_extensionName__",
     "description": "__MSG_extensionDescription__",
     "default_locale": "en",
-    "applications": {
+    "browser_specific_settings": {
         "gecko": {
             "id": "@notification-sound",
             "strict_min_version": "63.0a1"
