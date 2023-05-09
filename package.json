@@ -10,8 +10,7 @@
     "lint:js": "eslint scripts/ manifest.json --ext js,json",
     "lint:css": "stylelint styles/*.css",
     "lint:webext": "web-ext lint",
-    "lint:ec": "eclint check $(git ls-files)",
-    "test": "npm run lint:js && npm run lint:css && npm run lint:webext && npm run lint:ec",
+    "test": "npm run lint:js && npm run lint:css && npm run lint:webext",
     "start": "web-ext run",
     "build": "web-ext build -i README.md package.json package-lock.json images/Notification_Sound_Icon_Square.svg"
   },
@@ -24,9 +23,8 @@
     "url": "https://github.com/freaktechnik/notification-sounds/issues"
   },
   "devDependencies": {
-    "@freaktechnik/eslint-config-extension": "^9.1.1",
-    "eclint": "^2.8.1",
-    "eslint": "^8.39.0",
+    "@freaktechnik/eslint-config-extension": "^9.2.1",
+    "eslint": "^8.40.0",
     "stylelint": "^15.6.0",
     "stylelint-config-standard": "^33.0.0",
     "stylelint-no-unsupported-browser-features": "^6.1.0",

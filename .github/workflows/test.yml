@@ -29,16 +29,6 @@ jobs:
           cache: 'npm'
       - run: npm ci --no-audit
       - run: npm run lint:css
-  lint-editorconfig:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'npm'
-      - run: npm ci --no-audit
-      - run: npm run lint:ec
   lint-webext:
     runs-on: ubuntu-latest
     steps:

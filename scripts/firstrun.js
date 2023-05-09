@@ -2,12 +2,7 @@ const player = new Audio(),
     canPlay = player.canPlayType("audio/flac");
 
 document.addEventListener("DOMContentLoaded", () => {
-    if(!canPlay) {
-        document.getElementById("support").hidden = true;
-        document.getElementById("preview").hidden = true;
-        document.getElementById("nosupport").hidden = false;
-    }
-    else {
+    if(canPlay) {
         document.getElementById("preview").addEventListener("click", () => {
             browser.runtime.sendMessage({
                 command: "preview-sound",
@@ -16,6 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }, {
             passive: true
         });
+    }
+    else {
+        document.getElementById("support").hidden = true;
+        document.getElementById("preview").hidden = true;
+        document.getElementById("nosupport").hidden = false;
     }
 
     document.getElementById("options").addEventListener("click", () => {

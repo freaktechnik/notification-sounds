@@ -356,7 +356,7 @@ class FilterList {
                 this.appendItem(value)
             ]).catch(showError);
         }
-        catch(error) {
+        catch{
             // Do nothing
             // showError(error);
         }
@@ -456,7 +456,7 @@ class ExtensionFilterList extends FilterList {
             span.append(document.createTextNode(`${extension.name} (${extension.id})`));
             return span;
         }
-        catch(error) {
+        catch{
             return super.itemContent(value);
         }
     }
