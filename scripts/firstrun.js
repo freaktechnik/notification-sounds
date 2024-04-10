@@ -6,10 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("preview").addEventListener("click", () => {
             browser.runtime.sendMessage({
                 command: "preview-sound",
-                pref: 'soundName'
+                pref: 'soundName',
             }).catch(console.error);
         }, {
-            passive: true
+            passive: true,
         });
     }
     else {
@@ -21,9 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("options").addEventListener("click", () => {
         browser.runtime.openOptionsPage();
     }, {
-        passive: true
+        passive: true,
     });
 }, {
     passive: true,
-    once: true
+    once: true,
 });

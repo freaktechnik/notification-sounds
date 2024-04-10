@@ -7,7 +7,7 @@
 
 const SOURCES = {
         WEBSITE: 0,
-        EXTENSION: 1
+        EXTENSION: 1,
     },
     NOTIFICATION_TOPIC = "new-notification",
     WWW_PREFIX = 'www.',
@@ -48,13 +48,13 @@ const SOURCES = {
         async setPlayerVolume(prefName = this.PREF_NAME, player = this.player) {
             const volumePrefName = `${prefName}-volume`;
             let { [volumePrefName]: data } = await browser.storage.local.get({
-                [volumePrefName]: false
+                [volumePrefName]: false,
             });
             // Fall back to global volume if none is set for the given pref
             if(data === false && prefName !== this.PREF_NAME) {
                 const defaultVolumePref = `${this.PREF_NAME}-volume`,
                     { [defaultVolumePref]: defaultData } = await browser.storage.local.get({
-                        [defaultVolumePref]: DEFAULT_VOLUME
+                        [defaultVolumePref]: DEFAULT_VOLUME,
                     });
                 this.currentPref = this.PREF_NAME;
                 data = defaultData;
@@ -72,7 +72,7 @@ const SOURCES = {
         },
         async loadSound() {
             const { [this.PREF_NAME]: soundName } = await browser.storage.local.get({
-                [this.PREF_NAME]: ''
+                [this.PREF_NAME]: '',
             });
             if(this.player.src && this.player.src !== this.DEFAULT_SOUND) {
                 const oldURL = this.player.src;
@@ -88,7 +88,7 @@ const SOURCES = {
                     console.error("Could not load configured sound", error);
                     await browser.runtime.sendMessage({
                         command: "error",
-                        error: error.message
+                        error: error.message,
                     });
                     url = this.DEFAULT_SOUND;
                 }
@@ -97,11 +97,11 @@ const SOURCES = {
         },
         async extensionAllowed(id) {
             const {
-                allExtensions, allowedExtensions, blockedExtensions
+                allExtensions, allowedExtensions, blockedExtensions,
             } = await browser.storage.local.get({
                 allExtensions: true,
                 allowedExtensions: [],
-                blockedExtensions: []
+                blockedExtensions: [],
             });
             if(allExtensions) {
                 return !blockedExtensions.includes(id);
@@ -114,12 +114,12 @@ const SOURCES = {
                 allWebsites,
                 allowedWebsites,
                 blockedWebsites,
-                tabMuted
+                tabMuted,
             } = await browser.storage.local.get({
                 allWebsites: true,
                 allowedWebsites: [],
                 blockedWebsites: [],
-                tabMuted: true
+                tabMuted: true,
             });
             if(tabMuted && isMuted) {
                 return false;
@@ -156,7 +156,7 @@ const SOURCES = {
             //TODO even though a page might not have a custom sound, it may have a custom volume!
             const hostPrefName = `sound-${sourceSpec}`,
                 { [hostPrefName]: hostPrefValue } = await browser.storage.local.get({
-                    [hostPrefName]: false
+                    [hostPrefName]: false,
                 });
             if(hostPrefValue) {
                 return hostPrefName;
@@ -183,7 +183,7 @@ const SOURCES = {
         async shouldPlaySound(source, sourceSpec, sourceMuted = false) {
             if(source === SOURCES.WEBSITE) {
                 const { websiteSound } = await browser.storage.local.get({
-                    websiteSound: true
+                    websiteSound: true,
                 });
                 if(!websiteSound) {
                     return false;
@@ -231,11 +231,11 @@ const SOURCES = {
                 await this.preparePlay(url, prefName);
                 this.playing.addEventListener("ended", discard, {
                     once: true,
-                    passive: true
+                    passive: true,
                 });
                 this.playing.addEventListener("pause", discard, {
                     once: true,
-                    passive: true
+                    passive: true,
                 });
             }
         },
@@ -244,7 +244,7 @@ const SOURCES = {
                 return this.makeSound();
             }
             return this.playFromStorage(prefName);
-        }
+        },
     },
     extractHost = (url) => {
         const urlObject = new URL(url);
@@ -261,7 +261,7 @@ const SOURCES = {
         },
         get() {
             return Array.from(this.recents.values());
-        }
+        },
     },
     DownloadListener = {
         DOWNLOAD_COMPLETE: "complete",
@@ -269,11 +269,11 @@ const SOURCES = {
             browser.downloads.onChanged.addListener(async (download) => {
                 if(download.state.current === this.DOWNLOAD_COMPLETE && download.state.previous !== this.DOWNLOAD_COMPLETE) {
                     const lastWindow = await browser.windows.getLastFocused({
-                        windowTypes: [ 'normal' ]
+                        windowTypes: [ 'normal' ],
                     });
                     if(!lastWindow.focused || lastWindow.state === "minimized") {
                         const { download: downloadSound } = await browser.storage.local.get({
-                            download: true
+                            download: true,
                         });
                         if(downloadSound) {
                             NotificationListener.makeSound();
@@ -282,10 +282,10 @@ const SOURCES = {
                     else {
                         const {
                             download: downloadSound,
-                            downloadAlways
+                            downloadAlways,
                         } = await browser.storage.local.get({
                             download: true,
-                            downloadAlways: false
+                            downloadAlways: false,
                         });
                         if(downloadSound && downloadAlways) {
                             NotificationListener.makeSound();
@@ -293,7 +293,7 @@ const SOURCES = {
                     }
                 }
             });
-        }
+        },
     },
     TabMenu = {
         MENU_ITEM: 'toggle-ignore',
@@ -301,7 +301,7 @@ const SOURCES = {
         TST_ID: 'treestyletab@piro.sakura.ne.jp',
         TYPES: {
             VANILLA: 'vanilla',
-            TST: 'tst'
+            TST: 'tst',
         },
         TST_TIMEOUT: 10000,
         currentId: 0,
@@ -320,7 +320,7 @@ const SOURCES = {
                     id: this.MENU_ITEM,
                     title: this.disabledLabel,
                     enabled: false,
-                    type: 'checkbox'
+                    type: 'checkbox',
                 };
             browser.menus.create(parameters);
             this.registerTST(parameters);
@@ -364,27 +364,27 @@ const SOURCES = {
                         'shutdown',
                         'fake-contextMenu-click',
                         'fake-contextMenu-shown',
-                        'fake-contextMenu-hidden'
-                    ]
+                        'fake-contextMenu-hidden',
+                    ],
                 });
                 this.hasTST = true;
                 await browser.runtime.sendMessage(this.TST_ID, {
                     type: 'fake-contextMenu-create',
-                    params: parameters
+                    params: parameters,
                 });
                 this.tstCheck = setInterval(() => this.checkTST().catch(console.error), this.TST_TIMEOUT);
             }
-            catch(error) {
+            catch{
                 this.hasTST = false;
             }
         },
         async checkTST() {
             try {
                 await browser.runtime.sendMessage(this.TST_ID, {
-                    type: 'ping'
+                    type: 'ping',
                 });
             }
-            catch(error) {
+            catch{
                 clearInterval(this.tstCheck);
                 this.hasTST = false;
             }
@@ -393,10 +393,10 @@ const SOURCES = {
             const menuId = type === this.TYPES.VANILLA ? this.currentId : this.tstCurrentId;
             if(context.menuIds.includes(this.MENU_ITEM) || type === this.TYPES.TST) {
                 const updatedSpec = {
-                        enabled: true
+                        enabled: true,
                     },
                     { allWebsites } = await browser.storage.local.get({
-                        allWebsites: true
+                        allWebsites: true,
                     });
                 if(!this.isCurrentMenu(menuId, type)) {
                     return;
@@ -413,8 +413,8 @@ const SOURCES = {
                         type: 'fake-contextMenu-update',
                         params: [
                             this.MENU_ITEM,
-                            updatedSpec
-                        ]
+                            updatedSpec,
+                        ],
                     });
                 }
                 else if(type === this.TYPES.VANILLA) {
@@ -444,11 +444,11 @@ const SOURCES = {
                 {
                     allWebsites,
                     allowedWebsites,
-                    blockedWebsites
+                    blockedWebsites,
                 } = await browser.storage.local.get({
                     allWebsites: true,
                     allowedWebsites: [],
-                    blockedWebsites: []
+                    blockedWebsites: [],
                 }),
                 list = allWebsites ? blockedWebsites : allowedWebsites,
                 updateProperty = allWebsites ? 'blockedWebsites' : 'allowedWebsites';
@@ -459,9 +459,9 @@ const SOURCES = {
                 list.push(host);
             }
             return browser.storage.local.set({
-                [updateProperty]: list
+                [updateProperty]: list,
             });
-        }
+        },
     },
     isWebsite = (sender) => sender.url.startsWith("http");
 
@@ -490,7 +490,7 @@ browser.runtime.onMessageExternal.addListener((message, sender) => {
 browser.runtime.onInstalled.addListener((details) => {
     if(details.reason === "install" && !details.temporary) {
         browser.tabs.create({
-            url: browser.runtime.getURL("pages/firstrun.html")
+            url: browser.runtime.getURL("pages/firstrun.html"),
         });
     }
 });

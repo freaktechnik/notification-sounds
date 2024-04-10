@@ -4,7 +4,7 @@ const Database = {
     STORE_NAME: "sounds",
     db: undefined,
     _waitForRequest(request) {
-        return new Promise((resolve, reject) => { // eslint-disable-line promise/avoid-new
+        return new Promise((resolve, reject) => {
             request.addEventListener("success", (event) => resolve(event.target.result), { once: true });
             request.addEventListener("error", reject, { once: true });
         });
@@ -43,7 +43,7 @@ const Database = {
             store = transaction.objectStore(Database.STORE_NAME),
             request = store.delete(name);
         return this._waitForRequest(request);
-    }
+    },
 };
 
 // eslint-disable-next-line no-unused-vars

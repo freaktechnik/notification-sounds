@@ -8,12 +8,12 @@
 const stores = {
         extension: {
             blocked: "blockedExtensions",
-            allowed: "allowedExtensions"
+            allowed: "allowedExtensions",
         },
         website: {
             blocked: "blockedWebsites",
-            allowed: "allowedWebsites"
-        }
+            allowed: "allowedWebsites",
+        },
     },
     WWW_PREFIX = "www.",
     FULL_VOLUME = 1.0,
@@ -26,10 +26,10 @@ const stores = {
         let message;
         if(typeof error === 'object') {
             if(error instanceof Error || 'message' in error) {
-                message = error.message;
+                ({ message } = error);
             }
             else if('target' in error && 'error' in error.target) {
-                message = error.target.error.message;
+                ({ message } = error.target.error);
             }
             else {
                 message = JSON.stringify(error);
@@ -63,24 +63,24 @@ class Sound {
 
         this.input.addEventListener("input", () => this.selectFile().catch(showError), {
             capture: false,
-            passive: true
+            passive: true,
         });
         this.resetButton.addEventListener("click", () => this.reset(), {
             capture: false,
-            passive: true
+            passive: true,
         });
         this.preview.addEventListener("click", () => {
             browser.runtime.sendMessage({
                 command: "preview-sound",
-                pref: this.prefName
+                pref: this.prefName,
             }).catch(showError);
         }, {
             capture: false,
-            passive: true
+            passive: true,
         });
         this.volume.addEventListener("input", () => this.saveVolume(), {
             capture: false,
-            passive: true
+            passive: true,
         });
     }
 
@@ -104,7 +104,7 @@ class Sound {
             await storedFile.delete();
         }
         return browser.storage.local.set({
-            [this.prefName]: ''
+            [this.prefName]: '',
         });
     }
 
@@ -120,7 +120,7 @@ class Sound {
             const { [this.prefName]: oldName } = await browser.storage.local.get(this.prefName);
             await storedFile.save(file);
             await browser.storage.local.set({
-                [this.prefName]: file.name
+                [this.prefName]: file.name,
             });
             this.input.setCustomValidity("");
             this.resetButton.disabled = false;
@@ -137,17 +137,17 @@ class Sound {
 
     saveVolume() {
         return browser.storage.local.set({
-            [this.volumePref]: this.volume.valueAsNumber
+            [this.volumePref]: this.volume.valueAsNumber,
         });
     }
 
     async restoreFile() {
         const {
             [this.prefName]: soundName,
-            [this.volumePref]: volume
+            [this.volumePref]: volume,
         } = await browser.storage.local.get({
             [this.prefName]: '',
-            [this.volumePref]: this.prefName === GLOBAL_PREF ? FULL_VOLUME : globalSound.volume.valueAsNumber
+            [this.volumePref]: this.prefName === GLOBAL_PREF ? FULL_VOLUME : globalSound.volume.valueAsNumber,
         });
         if(soundName.length) {
             this.output.value = soundName;
@@ -239,13 +239,13 @@ class FilterList {
         this.changed = false;
 
         browser.storage.local.get({
-            [this.datastore]: []
+            [this.datastore]: [],
         })
             .then((values) => {
                 if(!values[this.datastore].length) {
                     this.changed = true;
                     return browser.storage.local.set({
-                        [this.datastore]: []
+                        [this.datastore]: [],
                     });
                 }
 
@@ -290,7 +290,7 @@ class FilterList {
             }, {
                 once: true,
                 passive: true,
-                capture: false
+                capture: false,
             });
 
             container = flexContainer;
@@ -318,7 +318,7 @@ class FilterList {
             this.removeItem(value);
         }, {
             passive: true,
-            capture: false
+            capture: false,
         });
 
         container.append(button);
@@ -353,7 +353,7 @@ class FilterList {
                     this.changed = true;
                     return browser.storage.local.set(values);
                 }),
-                this.appendItem(value)
+                this.appendItem(value),
             ]).catch(showError);
         }
         catch{
@@ -367,7 +367,7 @@ class FilterList {
                 const newValue = values[this.datastore].filter((v) => v !== value);
                 this.changed = true;
                 return browser.storage.local.set({
-                    [this.datastore]: newValue
+                    [this.datastore]: newValue,
                 });
             }),
             item = document.querySelector(`[data-value="${value}"]`);
@@ -401,7 +401,7 @@ class Filter {
         this.all = this.section.querySelector(".all");
 
         browser.storage.local.get({
-            [this.all.id]: true
+            [this.all.id]: true,
         })
             .then((values) => {
                 this.all.checked = values[this.all.id];
@@ -412,7 +412,7 @@ class Filter {
         this.all.addEventListener("input", () => {
             this.update();
             browser.storage.local.set({
-                [this.all.id]: this.all.checked
+                [this.all.id]: this.all.checked,
             });
         });
 
@@ -484,18 +484,18 @@ class Checkbox {
 
         this.checkbox.addEventListener("change", () => {
             browser.storage.local.set({
-                [this.storageKey]: this.checkbox.checked
+                [this.storageKey]: this.checkbox.checked,
             });
             for(const listener of this.changeListeners.values()) {
                 listener(this.checkbox.checked);
             }
         }, {
             capture: false,
-            passive: true
+            passive: true,
         });
 
         browser.storage.local.get({
-            [this.storageKey]: this.defaultValue
+            [this.storageKey]: this.defaultValue,
         })
             .then(({ [this.storageKey]: value }) => {
                 this.checkbox.checked = value;
@@ -545,8 +545,8 @@ window.addEventListener("DOMContentLoaded", () => {
             return Promise.all(recents
                 .filter((recent) => !existingRecents.has(recent))
                 .map((recent) => browser.management.get(recent)
-                    .then((existing) => new Option(existing.name, recent), () => new Option(recent))
-                )
+                    .then((existing) => new Option(existing.name, recent), () => new Option(recent)),
+                ),
             );
         })
         .then((options) => {

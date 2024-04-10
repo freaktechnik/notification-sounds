@@ -11,7 +11,7 @@ const OPTIONS_INDEX = 1,
             else {
                 browser.runtime.sendMessage({
                     command: 'play',
-                    url: new URL(options.sound, window.location).toString()
+                    url: new URL(options.sound, window.location).toString(),
                 });
             }
         }
@@ -19,9 +19,9 @@ const OPTIONS_INDEX = 1,
     OriginalNotification = window.wrappedJSObject.Notification,
     /**
      * @class
-     * @extends {Notification}
      * @param {?} arguments_ - Arguments.
      * @returns {Notification} Instance.
+     * @extends {Notification}
      */
     ModifiedNotification = function(...arguments_) {
         dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX ? arguments_[OPTIONS_INDEX] : undefined);
@@ -32,7 +32,7 @@ const OPTIONS_INDEX = 1,
 
 // Replace original Notification constructor with the version that plays sounds.
 window.wrappedJSObject.Notification = exportFunction(ModifiedNotification, window, {
-    allowCrossOriginArguments: true
+    allowCrossOriginArguments: true,
 });
 // Ensure the prototype is correct, inheriting from the original prototype.
 descriptor.prototype.value = cloneInto({}, window);
@@ -42,9 +42,9 @@ descriptor[Symbol.hasInstance] = cloneInto({
     enumerable: false,
     writable: false,
     configurable: false,
-    value: (instance) => instance instanceof OriginalNotification
+    value: (instance) => instance instanceof OriginalNotification,
 }, window, {
-    cloneFunctions: true
+    cloneFunctions: true,
 });
 // Set static propertties on our constructor.
 window.wrappedJSObject.Object.defineProperties(window.wrappedJSObject.Notification, descriptor);
@@ -57,8 +57,8 @@ Object.setPrototypeOf(window.wrappedJSObject.Notification, Object.getPrototypeOf
 const original = window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification,
     /**
      * @param {?} arguments_ - Arguments.
-     * @this {ServiceWorkerRegistration}
      * @returns {Promise} Resolves with the original promise.
+     * @this {ServiceWorkerRegistration}
      */
     replacement = function(...arguments_) {
         dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX ? arguments_[OPTIONS_INDEX] : undefined);
@@ -66,5 +66,5 @@ const original = window.wrappedJSObject.ServiceWorkerRegistration.prototype.show
     };
 
 window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification = exportFunction(replacement, window, {
-    allowCrossOriginArguments: true
+    allowCrossOriginArguments: true,
 });
