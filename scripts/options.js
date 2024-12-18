@@ -522,7 +522,7 @@ browser.runtime.onMessage.addListener((message) => {
     }
 });
 
-window.addEventListener("DOMContentLoaded", () => {
+globalThis.addEventListener("DOMContentLoaded", () => {
     globalSound = new Sound(GLOBAL_PREF, document.getElementById('sound-section'));
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);

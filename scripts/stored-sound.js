@@ -11,7 +11,7 @@ const Database = {
     },
     init() {
         if(!this.db) {
-            const request = window.indexedDB.open(Database.DB_NAME, Database.DB_VERSION);
+            const request = globalThis.indexedDB.open(Database.DB_NAME, Database.DB_VERSION);
             request.addEventListener("upgradeneeded", (event) => {
                 if(!Array.from(event.target.result.objectStoreNames).includes(Database.STORE_NAME)) {
                     event.target.result.createObjectStore(Database.STORE_NAME);

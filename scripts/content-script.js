@@ -11,12 +11,12 @@ const OPTIONS_INDEX = 1,
             else {
                 browser.runtime.sendMessage({
                     command: 'play',
-                    url: new URL(options.sound, window.location).toString(),
+                    url: new URL(options.sound, globalThis.location).toString(),
                 });
             }
         }
     },
-    OriginalNotification = window.wrappedJSObject.Notification,
+    OriginalNotification = globalThis.wrappedJSObject.Notification,
     /**
      * @class
      * @param {?} arguments_ - Arguments.
@@ -27,15 +27,15 @@ const OPTIONS_INDEX = 1,
         dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX ? arguments_[OPTIONS_INDEX] : undefined);
         return new OriginalNotification(...arguments_);
     },
-    descriptor = window.wrappedJSObject.Object.getOwnPropertyDescriptors(OriginalNotification);
+    descriptor = globalThis.wrappedJSObject.Object.getOwnPropertyDescriptors(OriginalNotification);
 
 
 // Replace original Notification constructor with the version that plays sounds.
-window.wrappedJSObject.Notification = exportFunction(ModifiedNotification, window, {
+globalThis.wrappedJSObject.Notification = exportFunction(ModifiedNotification, globalThis, {
     allowCrossOriginArguments: true,
 });
 // Ensure the prototype is correct, inheriting from the original prototype.
-descriptor.prototype.value = cloneInto({}, window);
+descriptor.prototype.value = cloneInto({}, globalThis);
 Object.setPrototypeOf(descriptor.prototype.value, OriginalNotification.prototype);
 // Make instanceof work with overwritten constructor.
 descriptor[Symbol.hasInstance] = cloneInto({
@@ -43,18 +43,18 @@ descriptor[Symbol.hasInstance] = cloneInto({
     writable: false,
     configurable: false,
     value: (instance) => instance instanceof OriginalNotification,
-}, window, {
+}, globalThis, {
     cloneFunctions: true,
 });
 // Set static propertties on our constructor.
-window.wrappedJSObject.Object.defineProperties(window.wrappedJSObject.Notification, descriptor);
+globalThis.wrappedJSObject.Object.defineProperties(globalThis.wrappedJSObject.Notification, descriptor);
 // Set the constructor property. Have to set it here so it gets set to the same instance as the main constructor.
-window.wrappedJSObject.Notification.prototype.constructor = window.wrappedJSObject.Notification;
+globalThis.wrappedJSObject.Notification.prototype.constructor = globalThis.wrappedJSObject.Notification;
 // Set the top level proto, which for some reason is an EventTarget.
-Object.setPrototypeOf(window.wrappedJSObject.Notification, Object.getPrototypeOf(OriginalNotification));
+Object.setPrototypeOf(globalThis.wrappedJSObject.Notification, Object.getPrototypeOf(OriginalNotification));
 
 // Override serviceWorker notifications in website scope.
-const original = window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification,
+const original = globalThis.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification,
     /**
      * @param {?} arguments_ - Arguments.
      * @returns {Promise} Resolves with the original promise.
@@ -65,6 +65,6 @@ const original = window.wrappedJSObject.ServiceWorkerRegistration.prototype.show
         return Reflect.apply(original, this, arguments_);
     };
 
-window.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification = exportFunction(replacement, window, {
+globalThis.wrappedJSObject.ServiceWorkerRegistration.prototype.showNotification = exportFunction(replacement, globalThis, {
     allowCrossOriginArguments: true,
 });
