@@ -27,7 +27,7 @@
     "eslint": "^9.18.0",
     "stylelint": "^16.13.2",
     "stylelint-config-standard": "^37.0.0",
-    "stylelint-no-unsupported-browser-features": "^8.0.2",
+    "stylelint-no-unsupported-browser-features": "^8.0.4",
     "web-ext": "^8.4.0"
   },
   "browserslist": [
