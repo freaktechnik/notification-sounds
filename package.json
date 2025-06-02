@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@freaktechnik/eslint-config-extension": "^10.2.0",
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "stylelint": "^16.19.1",
     "stylelint-config-standard": "^38.0.0",
     "stylelint-no-unsupported-browser-features": "^8.0.4",
