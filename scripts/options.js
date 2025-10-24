@@ -176,8 +176,7 @@ class FilterList {
             soundLabel = document.createElement('label'),
             sound = document.createElement('input');
 
-        currentSoundLabel.classList.add('browser-style-label');
-        currentSoundLabel.classList.add('current-sound-label');
+        currentSoundLabel.classList.add('browser-style-label', 'current-sound-label');
         currentSoundLabel.textContent = `${browser.i18n.getMessage('currentSound')} `;
         currentSound.classList.add('currentSound');
         currentSound.value = soundName;
@@ -185,17 +184,13 @@ class FilterList {
         firstP.append(currentSoundLabel);
 
         playSound.textContent = '▶';
-        playSound.classList.add('playSound');
-        playSound.classList.add('browser-style');
-        playSound.classList.add('disabled');
+        playSound.classList.add('playSound', 'browser-style', 'disabled');
         playSound.disabled = true;
         playSound.title = browser.i18n.getMessage('previewSound');
         firstP.append(playSound);
 
         resetSound.textContent = '🗙';
-        resetSound.classList.add('resetSound');
-        resetSound.classList.add('browser-style');
-        resetSound.classList.add('disabled');
+        resetSound.classList.add('resetSound', 'browser-style', 'disabled');
         resetSound.disabled = true;
         resetSound.type = 'reset';
         resetSound.title = browser.i18n.getMessage('resetSound');
@@ -312,8 +307,7 @@ class FilterList {
 
         button.textContent = "🗙";
         button.title = browser.i18n.getMessage("remove");
-        button.classList.add("removebutton");
-        button.classList.add("browser-style");
+        button.classList.add("removebutton", "browser-style");
         button.addEventListener("click", () => {
             this.removeItem(value);
         }, {
