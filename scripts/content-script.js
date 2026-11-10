@@ -11,7 +11,7 @@ const OPTIONS_INDEX = 1,
             else {
                 browser.runtime.sendMessage({
                     command: 'play',
-                    url: new URL(options.sound, globalThis.location).toString(),
+                    url: new URL(options.sound, location).href,
                 });
             }
         }
@@ -24,7 +24,7 @@ const OPTIONS_INDEX = 1,
      * @extends {Notification}
      */
     ModifiedNotification = function(...arguments_) {
-        dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX ? arguments_[OPTIONS_INDEX] : undefined);
+        dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX && arguments_[OPTIONS_INDEX]);
         return new OriginalNotification(...arguments_);
     },
     descriptor = globalThis.wrappedJSObject.Object.getOwnPropertyDescriptors(OriginalNotification);
@@ -61,7 +61,7 @@ const original = globalThis.wrappedJSObject.ServiceWorkerRegistration.prototype.
      * @this {ServiceWorkerRegistration}
      */
     replacement = function(...arguments_) {
-        dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX ? arguments_[OPTIONS_INDEX] : undefined);
+        dispatchNotificationEvent(arguments_.length > OPTIONS_INDEX && arguments_[OPTIONS_INDEX]);
         return Reflect.apply(original, this, arguments_);
     };
 

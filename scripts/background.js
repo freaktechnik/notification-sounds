@@ -29,19 +29,21 @@ const SOURCES = {
             this.setPlayerVolume();
 
             browser.storage.onChanged.addListener((changes, areaName) => {
-                if(areaName === "local") {
-                    if(this.PREF_NAME in changes) {
-                        this.loadSound();
+                if(areaName !== "local") {
+                    return;
+                }
+
+                if(Object.hasOwn(changes, this.PREF_NAME)) {
+                    this.loadSound();
+                }
+                if(Object.hasOwn(changes, `${this.PREF_NAME}-volume`)) {
+                    this.player.volume = changes[`${this.PREF_NAME}-volume`].newValue;
+                    if(this.currentPref === this.PREF_NAME) {
+                        this.playing.volume = this.player.volume;
                     }
-                    if(`${this.PREF_NAME}-volume` in changes) {
-                        this.player.volume = changes[`${this.PREF_NAME}-volume`].newValue;
-                        if(this.currentPref === this.PREF_NAME) {
-                            this.playing.volume = this.player.volume;
-                        }
-                    }
-                    if(this.currentPref !== this.PREF_NAME && `${this.currentPref}-volume` in changes) {
-                        this.playing.volume = changes[`${this.currentPref}-volume`].newValue;
-                    }
+                }
+                if(this.currentPref !== this.PREF_NAME && Object.hasOwn(changes, `${this.currentPref}-volume`)) {
+                    this.playing.volume = changes[`${this.currentPref}-volume`].newValue;
                 }
             });
         },
@@ -134,7 +136,7 @@ const SOURCES = {
             if(source === SOURCES.EXTENSION) {
                 return this.extensionAllowed(sourceSpec);
             }
-            else if(source === SOURCES.WEBSITE) {
+            if(source === SOURCES.WEBSITE) {
                 return this.websiteAllowed(sourceSpec, sourceMuted);
             }
             return false;
@@ -204,40 +206,43 @@ const SOURCES = {
             return this.play(url, player);
         },
         async onPlay(source, sourceSpec, url, sourceMuted = false) {
-            if(await this.shouldPlaySound(source, sourceSpec, sourceMuted)) {
-                const prefName = await this.getPrefForHost(sourceSpec);
-                try {
-                    await this.preparePlay(url, prefName);
-                }
-                catch(error) {
-                    console.warn("Couldn't play file specified by the website, falling back to default sound", error);
-                    await this.onNotification(source, sourceSpec, sourceMuted);
-                }
+            if(!(await this.shouldPlaySound(source, sourceSpec, sourceMuted))) {
+                return;
+            }
+
+            const prefName = await this.getPrefForHost(sourceSpec);
+            try {
+                await this.preparePlay(url, prefName);
+            }
+            catch(error) {
+                console.warn("Couldn't play file specified by the website, falling back to default sound", error);
+                await this.onNotification(source, sourceSpec, sourceMuted);
             }
         },
         async playFromStorage(prefName) {
             const { [prefName]: soundName } = await browser.storage.local.get(prefName);
-            if(soundName) {
-                const url = await this.loadFile(prefName + soundName),
-                    discard = (event) => {
-                        let otherEvent = "ended";
-                        if(event.type == otherEvent) {
-                            otherEvent = "pause";
-                        }
-                        this.playing.removeEventListener(otherEvent, discard);
-                        URL.revokeObjectURL(url);
-                        this.playing = null;
-                    };
-                await this.preparePlay(url, prefName);
-                this.playing.addEventListener("ended", discard, {
-                    once: true,
-                    passive: true,
-                });
-                this.playing.addEventListener("pause", discard, {
-                    once: true,
-                    passive: true,
-                });
+            if(!soundName) {
+                return;
             }
+            const url = await this.loadFile(prefName + soundName),
+                discard = (event) => {
+                    let otherEvent = "ended";
+                    if(event.type == otherEvent) {
+                        otherEvent = "pause";
+                    }
+                    this.playing.removeEventListener(otherEvent, discard);
+                    URL.revokeObjectURL(url);
+                    this.playing = null;
+                };
+            await this.preparePlay(url, prefName);
+            this.playing.addEventListener("ended", discard, {
+                once: true,
+                passive: true,
+            });
+            this.playing.addEventListener("pause", discard, {
+                once: true,
+                passive: true,
+            });
         },
         async preview(prefName) {
             if(prefName === this.PREF_NAME) {
@@ -267,29 +272,31 @@ const SOURCES = {
         DOWNLOAD_COMPLETE: "complete",
         init() {
             browser.downloads.onChanged.addListener(async (download) => {
-                if(download.state.current === this.DOWNLOAD_COMPLETE && download.state.previous !== this.DOWNLOAD_COMPLETE) {
-                    const lastWindow = await browser.windows.getLastFocused({
-                        windowTypes: [ 'normal' ],
+                if(download.state.current !== this.DOWNLOAD_COMPLETE || download.state.previous === this.DOWNLOAD_COMPLETE) {
+                    return;
+                }
+
+                const lastWindow = await browser.windows.getLastFocused({
+                    windowTypes: [ 'normal' ],
+                });
+                if(!lastWindow.focused || lastWindow.state === "minimized") {
+                    const { download: downloadSound } = await browser.storage.local.get({
+                        download: true,
                     });
-                    if(!lastWindow.focused || lastWindow.state === "minimized") {
-                        const { download: downloadSound } = await browser.storage.local.get({
-                            download: true,
-                        });
-                        if(downloadSound) {
-                            NotificationListener.makeSound();
-                        }
+                    if(downloadSound) {
+                        NotificationListener.makeSound();
                     }
-                    else {
-                        const {
-                            download: downloadSound,
-                            downloadAlways,
-                        } = await browser.storage.local.get({
-                            download: true,
-                            downloadAlways: false,
-                        });
-                        if(downloadSound && downloadAlways) {
-                            NotificationListener.makeSound();
-                        }
+                }
+                else {
+                    const {
+                        download: downloadSound,
+                        downloadAlways,
+                    } = await browser.storage.local.get({
+                        download: true,
+                        downloadAlways: false,
+                    });
+                    if(downloadSound && downloadAlways) {
+                        NotificationListener.makeSound();
                     }
                 }
             });
@@ -391,36 +398,37 @@ const SOURCES = {
         },
         async updateItem(context, tab, type = this.TYPES.VANILLA) {
             const menuId = type === this.TYPES.VANILLA ? this.currentId : this.tstCurrentId;
-            if(context.menuIds.includes(this.MENU_ITEM) || type === this.TYPES.TST) {
-                const updatedSpec = {
+            if(!context.menuIds.includes(this.MENU_ITEM) && type !== this.TYPES.TST) {
+                return;
+            }
+            if(!this.isCurrentMenu(menuId, type)) {
+                return;
+            }
+            const updatedSpec = {
                         enabled: true,
                     },
                     { allWebsites } = await browser.storage.local.get({
                         allWebsites: true,
-                    });
-                if(!this.isCurrentMenu(menuId, type)) {
-                    return;
-                }
-                const host = extractHost(tab.url);
-                updatedSpec.title = browser.i18n.getMessage(allWebsites ? 'ignoreHost' : 'allowHost', host);
-                const canPlaySound = await NotificationListener.websiteAllowed(host, false);
-                if(!this.isCurrentMenu(menuId, type)) {
-                    return;
-                }
-                updatedSpec.checked = allWebsites ? !canPlaySound : canPlaySound;
-                if(this.hasTST && type === this.TYPES.TST) {
-                    await browser.runtime.sendMessage(this.TST_ID, {
-                        type: 'fake-contextMenu-update',
-                        params: [
-                            this.MENU_ITEM,
-                            updatedSpec,
-                        ],
-                    });
-                }
-                else if(type === this.TYPES.VANILLA) {
-                    browser.menus.update(this.MENU_ITEM, updatedSpec);
-                    browser.menus.refresh();
-                }
+                    }),
+                host = extractHost(tab.url);
+            updatedSpec.title = browser.i18n.getMessage(allWebsites ? 'ignoreHost' : 'allowHost', host);
+            const canPlaySound = await NotificationListener.websiteAllowed(host, false);
+            if(!this.isCurrentMenu(menuId, type)) {
+                return;
+            }
+            updatedSpec.checked = allWebsites ? !canPlaySound : canPlaySound;
+            if(this.hasTST && type === this.TYPES.TST) {
+                await browser.runtime.sendMessage(this.TST_ID, {
+                    type: 'fake-contextMenu-update',
+                    params: [
+                        this.MENU_ITEM,
+                        updatedSpec,
+                    ],
+                });
+            }
+            else if(type === this.TYPES.VANILLA) {
+                browser.menus.update(this.MENU_ITEM, updatedSpec);
+                browser.menus.refresh();
             }
         },
         closeMenu(type = this.TYPES.VANILLA) {
@@ -435,9 +443,10 @@ const SOURCES = {
             if(type === this.TYPES.VANILLA) {
                 return menuId === this.currentId;
             }
-            else if(type === this.TYPES.TST) {
+            if(type === this.TYPES.TST) {
                 return menuId === this.tstCurrentId;
             }
+            return false;
         },
         async handleClick(context, tab) {
             const host = extractHost(tab.url),
@@ -482,10 +491,12 @@ browser.runtime.onMessage.addListener((message, sender) => {
     }
 });
 browser.runtime.onMessageExternal.addListener((message, sender) => {
-    if(message === NOTIFICATION_TOPIC) {
-        RecentExtensions.add(sender.id);
-        return NotificationListener.onNotification(SOURCES.EXTENSION, sender.id);
+    if(message !== NOTIFICATION_TOPIC) {
+        return;
     }
+
+    RecentExtensions.add(sender.id);
+    return NotificationListener.onNotification(SOURCES.EXTENSION, sender.id);
 });
 browser.runtime.onInstalled.addListener((details) => {
     if(details.reason === "install" && !details.temporary) {

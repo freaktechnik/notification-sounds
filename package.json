@@ -1,26 +1,24 @@
 {
-  "title": "Notification Sound",
   "name": "notification-sound",
   "version": "1.4.0",
-  "description": "Makes a sound when a notification is shown",
-  "author": "Martin Giger (https://humanoids.be)",
-  "license": "MPL-2.0",
   "private": true,
+  "description": "Makes a sound when a notification is shown",
+  "license": "MPL-2.0",
+  "repository": "github:freaktechnik/notification-sounds",
+  "homepage": "https://addons.mozilla.org/en-US/firefox/addon/notification-sound/",
+  "bugs": "https://github.com/freaktechnik/notification-sounds/issues",
+  "author": "Martin Giger (https://humanoids.be)",
+  "type": "module",
+  "engines": {
+    "node": ">= 22"
+  },
   "scripts": {
-    "lint:js": "eslint scripts/ manifest.json",
+    "lint:js": "eslint scripts/ manifest.json package.json",
     "lint:css": "stylelint styles/*.css",
     "lint:webext": "web-ext lint",
     "test": "npm run lint:js && npm run lint:css && npm run lint:webext",
     "start": "web-ext run",
-    "build": "web-ext build -i README.md package.json package-lock.json images/Notification_Sound_Icon_Square.svg"
-  },
-  "homepage": "https://addons.mozilla.org/en-US/firefox/addon/notification-sound/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/freaktechnik/notification-sounds.git"
-  },
-  "bugs": {
-    "url": "https://github.com/freaktechnik/notification-sounds/issues"
+    "build": "web-ext build --ignore-files README.md package.json package-lock.json images/Notification_Sound_Icon_Square.svg"
   },
   "devDependencies": {
     "@freaktechnik/eslint-config-extension": "^14.1.0",
@@ -30,6 +28,7 @@
     "stylelint-no-unsupported-browser-features": "^8.1.2",
     "web-ext": "^10.8.0"
   },
+  "title": "Notification Sound",
   "browserslist": [
     "Firefox >= 63"
   ],
@@ -42,6 +41,5 @@
       "color-named": "always-where-possible",
       "plugin/no-unsupported-browser-features": true
     }
-  },
-  "type": "module"
+  }
 }

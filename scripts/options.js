@@ -25,7 +25,7 @@ const stores = {
         console.error(error);
         let message;
         if(typeof error === 'object') {
-            if(error instanceof Error || 'message' in error) {
+            if(Error.isError(error) || 'message' in error) {
                 ({ message } = error);
             }
             else if('target' in error && 'error' in error.target) {
@@ -109,30 +109,33 @@ class Sound {
     }
 
     async selectFile() {
-        if(this.input.files.length) {
-            const [ file ] = this.input.files,
-                storedFile = new StoredBlob(this.prefName + file.name);
-            if(!Sound.canPlay(file.type)) {
-                console.error("Browser reported that it can not play", file.type, "at all");
-                this.input.setCustomValidity(browser.i18n.getMessage("cannotDecode"));
-                return;
-            }
-            const { [this.prefName]: oldName } = await browser.storage.local.get(this.prefName);
-            await storedFile.save(file);
-            await browser.storage.local.set({
-                [this.prefName]: file.name,
-            });
-            this.input.setCustomValidity("");
-            this.resetButton.disabled = false;
-            this.resetButton.classList.remove("disabled");
-            this.preview.disabled = false;
-            this.preview.classList.remove("disabled");
-            this.output.value = file.name;
-            if(oldName) {
-                const oldFile = new StoredBlob(this.prefName + oldName);
-                await oldFile.delete();
-            }
+        if(!this.input.files.length) {
+            return;
         }
+
+        const [ file ] = this.input.files,
+            storedFile = new StoredBlob(this.prefName + file.name);
+        if(!Sound.canPlay(file.type)) {
+            console.error("Browser reported that it can not play", file.type, "at all");
+            this.input.setCustomValidity(browser.i18n.getMessage("cannotDecode"));
+            return;
+        }
+        const { [this.prefName]: oldName } = await browser.storage.local.get(this.prefName);
+        await storedFile.save(file);
+        await browser.storage.local.set({
+            [this.prefName]: file.name,
+        });
+        this.input.setCustomValidity("");
+        this.resetButton.disabled = false;
+        this.resetButton.classList.remove("disabled");
+        this.preview.disabled = false;
+        this.preview.classList.remove("disabled");
+        this.output.value = file.name;
+        if(!oldName) {
+            return;
+        }
+        const oldFile = new StoredBlob(this.prefName + oldName);
+        await oldFile.delete();
     }
 
     saveVolume() {
@@ -254,10 +257,12 @@ class FilterList {
 
         this.addListener = (event) => {
             event.preventDefault();
-            if(input.validity.valid && input.value != "") {
-                this.addItem(input.value);
-                input.value = "";
+            if(!input.validity.valid || input.value == "") {
+                return;
             }
+
+            this.addItem(input.value);
+            input.value = "";
         };
         this.anchor.querySelector(".addbutton").addEventListener("click", this.addListener);
         this.anchor.querySelector("form").addEventListener("submit", this.addListener);
@@ -364,7 +369,7 @@ class FilterList {
                     [this.datastore]: newValue,
                 });
             }),
-            item = document.querySelector(`[data-value="${value}"]`);
+            item = document.querySelector(`[data-value="${CSS.escape(value)}"]`);
         item.remove();
         return p;
     }
@@ -516,7 +521,7 @@ browser.runtime.onMessage.addListener((message) => {
     }
 });
 
-globalThis.addEventListener("DOMContentLoaded", () => {
+addEventListener("DOMContentLoaded", () => {
     globalSound = new Sound(GLOBAL_PREF, document.getElementById('sound-section'));
     new Filter(stores.extension, document.getElementById("extension-section"), ExtensionFilterList);
     new Filter(stores.website, document.getElementById("website-section"), HostFilterList);
